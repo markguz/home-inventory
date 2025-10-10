@@ -1,0 +1,83 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model Category {
+  id          String   @id @default(cuid())
+  name        String   @unique
+  description String?
+  icon        String?
+  color       String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  items       Item[]
+}
+
+model Location {
+  id          String   @id @default(cuid())
+  name        String   @unique
+  description String?
+  parentId    String?
+  parent      Location?  @relation("LocationHierarchy", fields: [parentId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  children    Location[] @relation("LocationHierarchy")
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  items       Item[]
+}
+
+model Tag {
+  id        String    @id @default(cuid())
+  name      String    @unique
+  color     String?
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  itemTags  ItemTag[]
+}
+
+model Item {
+  id           String    @id @default(cuid())
+  name         String
+  description  String?
+  quantity     Int       @default(1)
+  purchaseDate DateTime?
+  purchasePrice Float?
+  currentValue Float?
+  condition    String?   @default("good")
+  notes        String?
+  imageUrl     String?
+  barcode      String?
+  serialNumber String?
+  warrantyUntil DateTime?
+  categoryId   String
+  category     Category  @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  locationId   String
+  location     Location  @relation(fields: [locationId], references: [id], onDelete: Cascade)
+  tags         ItemTag[]
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+
+  @@index([categoryId])
+  @@index([locationId])
+  @@index([name])
+}
+
+model ItemTag {
+  id        String   @id @default(cuid())
+  itemId    String
+  tagId     String
+  item      Item     @relation(fields: [itemId], references: [id], onDelete: Cascade)
+  tag       Tag      @relation(fields: [tagId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+
+  @@unique([itemId, tagId])
+  @@index([itemId])
+  @@index([tagId])
+}
