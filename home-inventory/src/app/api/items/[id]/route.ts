@@ -48,22 +48,23 @@ export async function PATCH(
     const body = await request.json();
     const validatedData = itemUpdateSchema.parse({ ...body, id });
 
-    const { tagIds, ...updateData } = validatedData;
+    const { tagIds, id: _id, ...updateData } = validatedData;
 
-    // If tagIds are provided, update the tags
+    // Build the update data object conditionally
     const item = await prisma.item.update({
       where: { id },
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       data: {
         ...updateData,
         ...(tagIds !== undefined && {
           tags: {
             deleteMany: {},
-            create: tagIds.map((tagId) => ({
+            create: tagIds.map((tagId: string) => ({
               tag: { connect: { id: tagId } },
             })),
           },
         }),
-      },
+      } as any,
       include: {
         category: true,
         location: true,

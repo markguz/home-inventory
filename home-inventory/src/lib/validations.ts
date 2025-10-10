@@ -29,6 +29,18 @@ export const tagSchema = z.object({
   color: z.string().regex(/^#[0-9A-Fa-f]{6}$/, 'Invalid color hex').optional(),
 })
 
+export const itemUpdateSchema = itemSchema.partial().extend({
+  id: z.string().optional(),
+  tagIds: z.array(z.string()).optional(),
+})
+
+export const locationSchema = z.object({
+  name: z.string().min(1, 'Name is required').max(200),
+  description: z.string().optional(),
+  parentId: z.string().optional().nullable(),
+})
+
 export type ItemFormData = z.infer<typeof itemSchema>
 export type CategoryFormData = z.infer<typeof categorySchema>
 export type TagFormData = z.infer<typeof tagSchema>
+export type LocationFormData = z.infer<typeof locationSchema>
