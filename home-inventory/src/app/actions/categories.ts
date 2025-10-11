@@ -1,9 +1,7 @@
 'use server'
 
 import { revalidatePath } from 'next/cache'
-import { db } from '@/db'
-import { categories } from '@/db/schema'
-import { eq } from 'drizzle-orm'
+import { prisma } from '@/lib/db'
 import { categorySchema } from '@/lib/validations'
 
 export async function createCategory(formData: FormData) {
@@ -19,9 +17,11 @@ export async function createCategory(formData: FormData) {
   }
 
   try {
-    const result = await db.insert(categories).values(parsed.data).returning()
+    const result = await prisma.category.create({
+      data: parsed.data
+    })
     revalidatePath('/categories')
-    return { success: true, data: result[0] }
+    return { success: true, data: result }
   } catch (error) {
     return { error: 'Failed to create category' }
   }
@@ -40,10 +40,11 @@ export async function updateCategory(id: string, formData: FormData) {
   }
 
   try {
-    await db.update(categories)
-      .set({ ...parsed.data, updatedAt: new Date() })
-      .where(eq(categories.id, id))
-    
+    await prisma.category.update({
+      where: { id },
+      data: parsed.data
+    })
+
     revalidatePath('/categories')
     return { success: true }
   } catch (error) {
@@ -53,7 +54,9 @@ export async function updateCategory(id: string, formData: FormData) {
 
 export async function deleteCategory(id: string) {
   try {
-    await db.delete(categories).where(eq(categories.id, id))
+    await prisma.category.delete({
+      where: { id }
+    })
     revalidatePath('/categories')
     return { success: true }
   } catch (error) {

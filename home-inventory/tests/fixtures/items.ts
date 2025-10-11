@@ -3,13 +3,21 @@ import { ItemListItem } from '@/types/item.types';
 export const mockCategory = {
   id: 'cat_123',
   name: 'Electronics',
+  description: 'Electronic devices and accessories',
   icon: '📱',
   color: '#3B82F6',
+  minQuantity: 1,
+  createdAt: new Date('2024-01-01'),
+  updatedAt: new Date('2024-01-01'),
 };
 
 export const mockLocation = {
   id: 'loc_123',
   name: 'Living Room',
+  description: null,
+  parentId: null,
+  createdAt: new Date('2024-01-01'),
+  updatedAt: new Date('2024-01-01'),
 };
 
 export const mockTag = {
@@ -25,6 +33,7 @@ export const mockItem: ItemListItem = {
   name: 'MacBook Pro',
   description: 'M2 Pro 16-inch laptop',
   quantity: 1,
+  minQuantity: null,
   purchaseDate: new Date('2024-01-15'),
   purchasePrice: 2499.99,
   currentValue: 2200.0,

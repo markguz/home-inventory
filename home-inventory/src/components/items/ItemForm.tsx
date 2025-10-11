@@ -86,11 +86,6 @@ export function ItemForm({ categories, defaultValues, onSubmit }: ItemFormProps)
       </div>
 
       <div>
-        <Label htmlFor="modelNumber">Model Number</Label>
-        <Input id="modelNumber" {...register('modelNumber')} placeholder="Optional" />
-      </div>
-
-      <div>
         <Label htmlFor="notes">Notes</Label>
         <Textarea id="notes" {...register('notes')} placeholder="Additional notes" />
       </div>

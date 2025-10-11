@@ -1,18 +1,32 @@
-import { items, categories, tags, itemsToTags } from '@/db/schema'
+import { Prisma } from '@prisma/client'
 
-export type Item = typeof items.$inferSelect
-export type NewItem = typeof items.$inferInsert
-export type Category = typeof categories.$inferSelect
-export type NewCategory = typeof categories.$inferInsert
-export type Tag = typeof tags.$inferSelect
-export type NewTag = typeof tags.$inferInsert
+// Use Prisma-generated types
+// eslint-disable-next-line @typescript-eslint/no-empty-object-type
+export type Item = Prisma.ItemGetPayload<{}>
+// eslint-disable-next-line @typescript-eslint/no-empty-object-type
+export type Category = Prisma.CategoryGetPayload<{}>
+// eslint-disable-next-line @typescript-eslint/no-empty-object-type
+export type Tag = Prisma.TagGetPayload<{}>
+// eslint-disable-next-line @typescript-eslint/no-empty-object-type
+export type Location = Prisma.LocationGetPayload<{}>
 
-export type ItemWithRelations = Item & {
-  category: Category
-  tags: Array<{
-    tag: Tag
-  }>
-}
+// Create types for insertions
+export type NewItem = Prisma.ItemCreateInput
+export type NewCategory = Prisma.CategoryCreateInput
+export type NewTag = Prisma.TagCreateInput
+
+// Item with relations
+export type ItemWithRelations = Prisma.ItemGetPayload<{
+  include: {
+    category: true
+    location: true
+    tags: {
+      include: {
+        tag: true
+      }
+    }
+  }
+}>
 
 export type FilterParams = {
   category?: string

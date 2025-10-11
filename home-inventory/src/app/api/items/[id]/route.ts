@@ -48,20 +48,27 @@ export async function PATCH(
     const body = await request.json();
     const validatedData = itemUpdateSchema.parse({ ...body, id });
 
-    const { tagIds, ...updateData } = validatedData;
+    const { tagIds, id: _, ...updateData } = validatedData;
 
-    // Build the update data object conditionally
-    const dataToUpdate = {
-      ...updateData,
-      ...(tagIds !== undefined && {
-        tags: {
-          deleteMany: {},
-          create: tagIds.map((tagId: string) => ({
-            tag: { connect: { id: tagId } },
-          })),
-        },
-      }),
-    };
+    // Build the update data object conditionally, filtering out undefined values
+    const dataToUpdate: Record<string, unknown> = {};
+
+    // Only include fields that are actually present in the update
+    Object.entries(updateData).forEach(([key, value]) => {
+      if (value !== undefined) {
+        dataToUpdate[key] = value;
+      }
+    });
+
+    // Add tags update if provided
+    if (tagIds !== undefined) {
+      dataToUpdate.tags = {
+        deleteMany: {},
+        create: tagIds.map((tagId: string) => ({
+          tag: { connect: { id: tagId } },
+        })),
+      };
+    }
 
     const item = await prisma.item.update({
       where: { id },

@@ -53,7 +53,7 @@ export default async function ItemsPage() {
                   {item.location && (
                     <div className="flex items-center justify-between">
                       <span className="text-sm text-muted-foreground">Location:</span>
-                      <span className="text-sm">{item.location}</span>
+                      <span className="text-sm">{item.location.name}</span>
                     </div>
                   )}
                 </div>

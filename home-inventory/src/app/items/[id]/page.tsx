@@ -32,7 +32,7 @@ export default async function ItemDetailPage({ params }: { params: { id: string 
               <Badge variant="secondary">{item.category.name}</Badge>
             </div>
             <div>
-              <span className="font-semibold">Location:</span> {item.location}
+              <span className="font-semibold">Location:</span> {item.location.name}
             </div>
             <div>
               <span className="font-semibold">Quantity:</span>{' '}
@@ -57,11 +57,6 @@ export default async function ItemDetailPage({ params }: { params: { id: string 
             {item.serialNumber && (
               <div>
                 <span className="font-semibold">Serial Number:</span> {item.serialNumber}
-              </div>
-            )}
-            {item.modelNumber && (
-              <div>
-                <span className="font-semibold">Model Number:</span> {item.modelNumber}
               </div>
             )}
             {item.notes && (

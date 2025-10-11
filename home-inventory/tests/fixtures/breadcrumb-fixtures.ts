@@ -3,6 +3,8 @@
  * @description Test data and fixtures for breadcrumb component testing
  */
 
+import { vi } from 'vitest'
+
 export interface BreadcrumbItem {
   label: string;
   href?: string | null;

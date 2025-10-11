@@ -7,8 +7,9 @@ export type ItemWithRelations = Item & {
 };
 
 export type ItemListItem = Item & {
-  category: Pick<Category, 'id' | 'name' | 'color' | 'icon'>;
-  location: Pick<Location, 'id' | 'name'>;
+  category: Category;
+  location: Location;
+  tags: (ItemTag & { tag: Tag })[];
   _count?: {
     tags: number;
   };

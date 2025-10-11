@@ -5,16 +5,9 @@ export const itemSchema = z.object({
   description: z.string().optional(),
   categoryId: z.string().min(1, 'Category is required'),
   location: z.string().min(1, 'Location is required').max(200),
-  quantity: z.number().int().min(0).default(1),
+  quantity: z.number().int().min(0),
   minQuantity: z.number().int().min(0).optional(),
-  purchaseDate: z.date().optional(),
-  purchasePrice: z.number().positive().optional(),
-  purchaseLocation: z.string().max(200).optional(),
-  warrantyExpiry: z.date().optional(),
-  lastMaintenance: z.date().optional(),
-  imageUrl: z.string().url().optional(),
   serialNumber: z.string().max(100).optional(),
-  modelNumber: z.string().max(100).optional(),
   notes: z.string().optional(),
 })
 

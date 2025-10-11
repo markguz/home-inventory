@@ -67,18 +67,22 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const validatedData = itemSchema.parse(body);
 
-    const { tagIds, ...itemData } = validatedData;
+    // Extract tagIds separately before validation
+    const { tagIds, ...itemBody } = body;
+    const validatedData = itemSchema.parse(itemBody);
 
+    // Create item with optional tags
     const item = await prisma.item.create({
       data: {
-        ...itemData,
-        tags: {
-          create: tagIds.map((tagId) => ({
-            tag: { connect: { id: tagId } },
-          })),
-        },
+        ...validatedData,
+        ...(tagIds && Array.isArray(tagIds) && {
+          tags: {
+            create: tagIds.map((tagId: string) => ({
+              tag: { connect: { id: tagId } },
+            })),
+          },
+        }),
       },
       include: {
         category: true,

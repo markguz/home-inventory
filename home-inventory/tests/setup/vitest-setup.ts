@@ -3,7 +3,7 @@
  * Global test setup and configuration
  */
 
-import { expect, afterEach } from 'vitest';
+import { expect, afterEach, vi } from 'vitest';
 import { cleanup } from '@testing-library/react';
 import '@testing-library/jest-dom/vitest';
 
@@ -15,7 +15,7 @@ afterEach(() => {
 // Mock environment variables
 process.env.DATABASE_URL = 'file:./test.db';
 process.env.TEST_DATABASE_URL = 'file:./test.db';
-process.env.NODE_ENV = 'test';
+// Note: NODE_ENV is read-only in production builds, set via defineConfig
 
 // Mock Next.js router
 vi.mock('next/navigation', () => ({

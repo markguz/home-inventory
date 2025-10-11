@@ -2,10 +2,26 @@
 
 import { revalidatePath } from 'next/cache'
 import { redirect } from 'next/navigation'
-import { db } from '@/db'
-import { items } from '@/db/schema'
-import { eq } from 'drizzle-orm'
+import { prisma } from '@/lib/db'
 import { itemSchema } from '@/lib/validations'
+
+/**
+ * Helper function to find or create a location by name
+ * Maintains backward compatibility with text-based location field
+ */
+async function findOrCreateLocation(locationName: string) {
+  let location = await prisma.location.findUnique({
+    where: { name: locationName }
+  })
+
+  if (!location) {
+    location = await prisma.location.create({
+      data: { name: locationName }
+    })
+  }
+
+  return location
+}
 
 export async function createItem(formData: FormData) {
   const parsed = itemSchema.safeParse({
@@ -15,7 +31,6 @@ export async function createItem(formData: FormData) {
     location: formData.get('location'),
     quantity: Number(formData.get('quantity')) || 1,
     serialNumber: formData.get('serialNumber') || undefined,
-    modelNumber: formData.get('modelNumber') || undefined,
     notes: formData.get('notes') || undefined,
   })
 
@@ -24,9 +39,24 @@ export async function createItem(formData: FormData) {
   }
 
   try {
-    const result = await db.insert(items).values(parsed.data).returning()
+    // Find or create location
+    const location = await findOrCreateLocation(parsed.data.location)
+
+    // Create item with Prisma
+    const result = await prisma.item.create({
+      data: {
+        name: parsed.data.name,
+        description: parsed.data.description,
+        categoryId: parsed.data.categoryId,
+        locationId: location.id,
+        quantity: parsed.data.quantity,
+        serialNumber: parsed.data.serialNumber,
+        notes: parsed.data.notes,
+      }
+    })
+
     revalidatePath('/items')
-    return { success: true, data: result[0] }
+    return { success: true, data: result }
   } catch (error) {
     return { error: 'Failed to create item' }
   }
@@ -40,7 +70,6 @@ export async function updateItem(id: string, formData: FormData) {
     location: formData.get('location'),
     quantity: Number(formData.get('quantity')) || 1,
     serialNumber: formData.get('serialNumber') || undefined,
-    modelNumber: formData.get('modelNumber') || undefined,
     notes: formData.get('notes') || undefined,
   })
 
@@ -49,10 +78,23 @@ export async function updateItem(id: string, formData: FormData) {
   }
 
   try {
-    await db.update(items)
-      .set({ ...parsed.data, updatedAt: new Date() })
-      .where(eq(items.id, id))
-    
+    // Find or create location
+    const location = await findOrCreateLocation(parsed.data.location)
+
+    // Update item with Prisma
+    await prisma.item.update({
+      where: { id },
+      data: {
+        name: parsed.data.name,
+        description: parsed.data.description,
+        categoryId: parsed.data.categoryId,
+        locationId: location.id,
+        quantity: parsed.data.quantity,
+        serialNumber: parsed.data.serialNumber,
+        notes: parsed.data.notes,
+      }
+    })
+
     revalidatePath('/items')
     revalidatePath(`/items/${id}`)
     return { success: true }
@@ -63,7 +105,9 @@ export async function updateItem(id: string, formData: FormData) {
 
 export async function deleteItem(id: string) {
   try {
-    await db.delete(items).where(eq(items.id, id))
+    await prisma.item.delete({
+      where: { id }
+    })
     revalidatePath('/items')
     return { success: true }
   } catch (error) {
