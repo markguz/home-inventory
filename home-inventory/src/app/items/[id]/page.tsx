@@ -5,16 +5,18 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { getItemById } from '@/db/queries'
 import { format } from 'date-fns'
+import { Breadcrumbs } from '@/components/layout/breadcrumbs'
 
 export default async function ItemDetailPage({ params }: { params: { id: string } }) {
   const item = await getItemById(params.id)
-  
+
   if (!item) {
     notFound()
   }
 
   return (
     <main className="container mx-auto p-8 max-w-4xl">
+      <Breadcrumbs />
       <div className="flex justify-between items-center mb-8">
         <h1 className="text-4xl font-bold">{item.name}</h1>
       </div>

@@ -16,6 +16,7 @@ model Category {
   description String?
   icon        String?
   color       String?
+  minQuantity Int?     @default(0)
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
   items       Item[]
@@ -47,6 +48,7 @@ model Item {
   name         String
   description  String?
   quantity     Int       @default(1)
+  minQuantity  Int?
   purchaseDate DateTime?
   purchasePrice Float?
   currentValue Float?

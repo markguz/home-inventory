@@ -68,6 +68,19 @@ export function ItemForm({ categories, defaultValues, onSubmit }: ItemFormProps)
       </div>
 
       <div>
+        <Label htmlFor="minQuantity">Minimum Quantity (Alert Threshold)</Label>
+        <Input
+          id="minQuantity"
+          type="number"
+          {...register('minQuantity', { valueAsNumber: true })}
+          placeholder="Optional - alerts when stock is low"
+        />
+        <p className="text-xs text-muted-foreground mt-1">
+          Leave empty to use category default
+        </p>
+      </div>
+
+      <div>
         <Label htmlFor="serialNumber">Serial Number</Label>
         <Input id="serialNumber" {...register('serialNumber')} placeholder="Optional" />
       </div>

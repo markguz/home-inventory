@@ -1,12 +1,14 @@
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { getAllCategories } from '@/db/queries'
+import { Breadcrumbs } from '@/components/layout/breadcrumbs'
 
 export default async function CategoriesPage() {
   const categories = await getAllCategories()
 
   return (
     <main className="container mx-auto p-8">
+      <Breadcrumbs />
       <h1 className="text-4xl font-bold mb-8">Categories</h1>
 
       {categories.length === 0 ? (

@@ -3,12 +3,14 @@ import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { getAllItems } from '@/db/queries'
+import { Breadcrumbs } from '@/components/layout/breadcrumbs'
 
 export default async function ItemsPage() {
   const items = await getAllItems()
 
   return (
     <main className="container mx-auto p-8">
+      <Breadcrumbs />
       <div className="flex justify-between items-center mb-8">
         <h1 className="text-4xl font-bold">Items</h1>
         <Link href="/items/new">

@@ -48,23 +48,24 @@ export async function PATCH(
     const body = await request.json();
     const validatedData = itemUpdateSchema.parse({ ...body, id });
 
-    const { tagIds, id: _id, ...updateData } = validatedData;
+    const { tagIds, ...updateData } = validatedData;
 
     // Build the update data object conditionally
+    const dataToUpdate = {
+      ...updateData,
+      ...(tagIds !== undefined && {
+        tags: {
+          deleteMany: {},
+          create: tagIds.map((tagId: string) => ({
+            tag: { connect: { id: tagId } },
+          })),
+        },
+      }),
+    };
+
     const item = await prisma.item.update({
       where: { id },
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      data: {
-        ...updateData,
-        ...(tagIds !== undefined && {
-          tags: {
-            deleteMany: {},
-            create: tagIds.map((tagId: string) => ({
-              tag: { connect: { id: tagId } },
-            })),
-          },
-        }),
-      } as any,
+      data: dataToUpdate,
       include: {
         category: true,
         location: true,

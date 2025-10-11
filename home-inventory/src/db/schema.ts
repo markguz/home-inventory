@@ -8,6 +8,7 @@ export const categories = sqliteTable('categories', {
   slug: text('slug').notNull().unique(),
   description: text('description'),
   icon: text('icon'),
+  minQuantity: integer('min_quantity').default(0),
   createdAt: integer('created_at', { mode: 'timestamp' }).$defaultFn(() => new Date()),
   updatedAt: integer('updated_at', { mode: 'timestamp' }).$defaultFn(() => new Date())
 })
@@ -19,6 +20,7 @@ export const items = sqliteTable('items', {
   categoryId: text('category_id').notNull().references(() => categories.id),
   location: text('location').notNull(),
   quantity: integer('quantity').notNull().default(1),
+  minQuantity: integer('min_quantity'),
   purchaseDate: integer('purchase_date', { mode: 'timestamp' }),
   purchasePrice: real('purchase_price'),
   purchaseLocation: text('purchase_location'),

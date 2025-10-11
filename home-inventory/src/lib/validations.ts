@@ -6,6 +6,7 @@ export const itemSchema = z.object({
   categoryId: z.string().min(1, 'Category is required'),
   location: z.string().min(1, 'Location is required').max(200),
   quantity: z.number().int().min(0).default(1),
+  minQuantity: z.number().int().min(0).optional(),
   purchaseDate: z.date().optional(),
   purchasePrice: z.number().positive().optional(),
   purchaseLocation: z.string().max(200).optional(),
@@ -22,6 +23,7 @@ export const categorySchema = z.object({
   slug: z.string().min(1, 'Slug is required').max(100),
   description: z.string().optional(),
   icon: z.string().optional(),
+  minQuantity: z.number().int().min(0).optional(),
 })
 
 export const tagSchema = z.object({
