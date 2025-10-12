@@ -4,6 +4,7 @@ import { revalidatePath } from 'next/cache'
 import { redirect } from 'next/navigation'
 import { prisma } from '@/lib/db'
 import { itemSchema } from '@/lib/validations'
+import { auth } from '@/auth'
 
 /**
  * Helper function to find or create a location by name
@@ -24,6 +25,12 @@ async function findOrCreateLocation(locationName: string) {
 }
 
 export async function createItem(formData: FormData) {
+  // Check authentication
+  const session = await auth()
+  if (!session?.user?.id) {
+    return { error: 'Unauthorized' }
+  }
+
   const parsed = itemSchema.safeParse({
     name: formData.get('name'),
     description: formData.get('description'),
@@ -52,6 +59,7 @@ export async function createItem(formData: FormData) {
         quantity: parsed.data.quantity,
         serialNumber: parsed.data.serialNumber,
         notes: parsed.data.notes,
+        userId: session.user.id,
       }
     })
 
