@@ -24,7 +24,7 @@
 
 ## 🚀 Quick Start
 
-\`\`\`bash
+```bash
 # Clone the repository
 git clone https://github.com/yourusername/home-inventory.git
 cd home-inventory/home-inventory
@@ -40,7 +40,7 @@ npx prisma migrate dev
 
 # Start development server
 npm run dev
-\`\`\`
+```
 
 Open [http://localhost:3000](http://localhost:3000) in your browser.
 
@@ -86,7 +86,7 @@ Open [http://localhost:3000](http://localhost:3000) in your browser.
 
 ## 🧪 Testing
 
-\`\`\`bash
+```bash
 # Run all tests
 npm run test:all
 
@@ -107,11 +107,11 @@ npm run test:coverage
 
 # Watch mode
 npm run test:watch
-\`\`\`
+```
 
 ## 🏗️ Project Structure
 
-\`\`\`
+```
 home-inventory/
 ├── src/
 │   ├── app/              # Next.js App Router
@@ -133,16 +133,16 @@ home-inventory/
 ├── tests/                # Test files
 ├── docs/                 # Documentation
 └── public/               # Static assets
-\`\`\`
+```
 
 ## 🤝 Contributing
 
 Contributions are welcome! Please see [CONTRIBUTING.md](./CONTRIBUTING.md) for details.
 
 1. Fork the repository
-2. Create a feature branch (\`git checkout -b feature/amazing-feature\`)
-3. Commit your changes (\`git commit -m 'Add amazing feature'\`)
-4. Push to the branch (\`git push origin feature/amazing-feature\`)
+2. Create a feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit your changes (`git commit -m 'Add amazing feature'`)
+4. Push to the branch (`git push origin feature/amazing-feature`)
 5. Open a Pull Request
 
 ## 📝 License
