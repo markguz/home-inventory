@@ -16,6 +16,7 @@ export const categorySchema = z.object({
   slug: z.string().min(1, 'Slug is required').max(100),
   description: z.string().optional(),
   icon: z.string().optional(),
+  color: z.string().optional(),
   minQuantity: z.number().int().min(0).optional(),
 })
 
