@@ -2,9 +2,18 @@ import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/db';
 import { itemSchema } from '@/lib/validations';
 import { z } from 'zod';
+import { auth } from '@/auth';
 
 export async function GET(request: NextRequest) {
   try {
+    // Check authentication
+    const session = await auth();
+    if (!session?.user) {
+      return NextResponse.json(
+        { success: false, error: 'Unauthorized' },
+        { status: 401 }
+      );
+    }
     const { searchParams } = new URL(request.url);
     const page = parseInt(searchParams.get('page') || '1');
     const limit = parseInt(searchParams.get('limit') || '20');
@@ -15,7 +24,9 @@ export async function GET(request: NextRequest) {
 
     const skip = (page - 1) * limit;
 
+    // Users can only see their own items, admins can see all
     const where = {
+      ...(session.user.role !== 'ADMIN' && { userId: session.user.id }),
       ...(categoryId && { categoryId }),
       ...(locationId && { locationId }),
     };
@@ -66,16 +77,26 @@ export async function GET(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
   try {
+    // Check authentication
+    const session = await auth();
+    if (!session?.user) {
+      return NextResponse.json(
+        { success: false, error: 'Unauthorized' },
+        { status: 401 }
+      );
+    }
+
     const body = await request.json();
 
     // Extract tagIds separately before validation
     const { tagIds, ...itemBody } = body;
     const validatedData = itemSchema.parse(itemBody);
 
-    // Create item with optional tags
+    // Create item with optional tags, linking to current user
     const item = await prisma.item.create({
       data: {
         ...validatedData,
+        userId: session.user.id,
         ...(tagIds && Array.isArray(tagIds) && {
           tags: {
             create: tagIds.map((tagId: string) => ({

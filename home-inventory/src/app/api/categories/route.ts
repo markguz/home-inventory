@@ -2,9 +2,18 @@ import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/db';
 import { categorySchema } from '@/lib/validations';
 import { z } from 'zod';
+import { auth } from '@/auth';
 
 export async function GET() {
   try {
+    // Check authentication
+    const session = await auth();
+    if (!session?.user) {
+      return NextResponse.json(
+        { success: false, error: 'Unauthorized' },
+        { status: 401 }
+      );
+    }
     const categories = await prisma.category.findMany({
       include: {
         _count: {
@@ -26,6 +35,22 @@ export async function GET() {
 
 export async function POST(request: NextRequest) {
   try {
+    // Check authentication - only admins can create categories
+    const session = await auth();
+    if (!session?.user) {
+      return NextResponse.json(
+        { success: false, error: 'Unauthorized' },
+        { status: 401 }
+      );
+    }
+
+    if (session.user.role !== 'ADMIN') {
+      return NextResponse.json(
+        { success: false, error: 'Forbidden - Admin access required' },
+        { status: 403 }
+      );
+    }
+
     const body = await request.json();
     const validatedData = categorySchema.parse(body);
 

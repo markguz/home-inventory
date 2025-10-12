@@ -3,6 +3,7 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { Package, Home, Tag, MapPin, FolderOpen, Plus } from 'lucide-react';
+import { AuthButton } from '@/components/auth/AuthButton';
 
 export function Header() {
   const pathname = usePathname();
@@ -78,13 +79,16 @@ export function Header() {
             </Link>
           </nav>
 
-          <Link
-            href="/items/new"
-            className="flex items-center space-x-2 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors"
-          >
-            <Plus className="w-4 h-4" />
-            <span>Add Item</span>
-          </Link>
+          <div className="flex items-center space-x-4">
+            <Link
+              href="/items/new"
+              className="flex items-center space-x-2 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors"
+            >
+              <Plus className="w-4 h-4" />
+              <span>Add Item</span>
+            </Link>
+            <AuthButton />
+          </div>
         </div>
       </div>
     </header>

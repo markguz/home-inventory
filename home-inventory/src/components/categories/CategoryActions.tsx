@@ -97,7 +97,7 @@ export function CategoryActions({ category }: CategoryActionsProps) {
           <DialogHeader>
             <DialogTitle>Delete Category</DialogTitle>
             <DialogDescription>
-              Are you sure you want to delete the category "{category.name}"?
+              Are you sure you want to delete the category &ldquo;{category.name}&rdquo;?
               {itemCount > 0 && (
                 <span className="block mt-2 text-destructive font-medium">
                   Warning: This category has {itemCount} item{itemCount !== 1 ? 's' : ''}.
