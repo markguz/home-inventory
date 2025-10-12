@@ -43,6 +43,7 @@ export const mockItem: ItemListItem = {
   barcode: '123456789',
   serialNumber: 'SN123456',
   warrantyUntil: new Date('2027-01-15'),
+  userId: 'user-test-1',
   categoryId: 'cat_123',
   locationId: 'loc_123',
   category: mockCategory,

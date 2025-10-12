@@ -8,6 +8,18 @@ import { prisma } from '../src/lib/db'
 async function main() {
   console.log('🌱 Seeding test data...')
 
+  // Create test user
+  const user = await prisma.user.create({
+    data: {
+      email: 'test@example.com',
+      name: 'Test User',
+      password: 'hashedpassword',
+      role: 'USER',
+    },
+  })
+
+  console.log(`✅ Created test user`)
+
   // Create categories
   const categories = await Promise.all([
     prisma.category.create({
@@ -76,6 +88,7 @@ async function main() {
         description: '16-inch laptop for development',
         quantity: 1,
         minQuantity: 1,
+        userId: user.id,
         categoryId: categories[0].id,
         locationId: locations[0].id,
         serialNumber: 'MBP-2024-001',
@@ -100,6 +113,7 @@ async function main() {
         description: 'Ceramic coffee mugs',
         quantity: 4,
         minQuantity: 6,
+        userId: user.id,
         categoryId: categories[1].id,
         locationId: locations[1].id,
         notes: 'Below minimum quantity - needs restocking',
