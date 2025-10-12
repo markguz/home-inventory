@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import Link from 'next/link'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { PlusIcon } from 'lucide-react'
@@ -42,47 +43,51 @@ export function CategoryPageClient({ categories }: CategoryPageClientProps) {
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
           {categories.map((category) => (
-            <Card key={category.id} className="relative">
-              <CardHeader>
-                <div className="flex items-start justify-between">
-                  <div className="flex items-center gap-2">
-                    {category.icon && (
-                      <span className="text-2xl">{category.icon}</span>
-                    )}
-                    <CardTitle className="text-lg">{category.name}</CardTitle>
+            <Link key={category.id} href={`/items?categoryId=${category.id}`}>
+              <Card className="relative hover:shadow-lg transition-shadow cursor-pointer">
+                <CardHeader>
+                  <div className="flex items-start justify-between">
+                    <div className="flex items-center gap-2">
+                      {category.icon && (
+                        <span className="text-2xl">{category.icon}</span>
+                      )}
+                      <CardTitle className="text-lg">{category.name}</CardTitle>
+                    </div>
+                    <div onClick={(e) => e.preventDefault()}>
+                      <CategoryActions category={category} />
+                    </div>
                   </div>
-                  <CategoryActions category={category} />
-                </div>
-              </CardHeader>
-              <CardContent>
-                {category.description && (
-                  <p className="text-sm text-muted-foreground mb-2">
-                    {category.description}
-                  </p>
-                )}
-                <div className="flex flex-wrap gap-2 text-xs text-muted-foreground">
-                  {category._count && (
-                    <span>
-                      {category._count.items} item{category._count.items !== 1 ? 's' : ''}
-                    </span>
+                </CardHeader>
+                <CardContent>
+                  {category.description && (
+                    <p className="text-sm text-muted-foreground mb-2">
+                      {category.description}
+                    </p>
                   )}
-                  {category.minQuantity !== null && category.minQuantity !== undefined && (
-                    <span>Min qty: {category.minQuantity}</span>
-                  )}
-                  {category.color && (
-                    <span
-                      className="px-2 py-0.5 rounded"
-                      style={{
-                        backgroundColor: category.color,
-                        color: 'white',
-                      }}
-                    >
-                      {category.color}
-                    </span>
-                  )}
-                </div>
-              </CardContent>
-            </Card>
+                  <div className="flex flex-wrap gap-2 text-xs text-muted-foreground">
+                    {category._count && (
+                      <span>
+                        {category._count.items} item{category._count.items !== 1 ? 's' : ''}
+                      </span>
+                    )}
+                    {category.minQuantity !== null && category.minQuantity !== undefined && (
+                      <span>Min qty: {category.minQuantity}</span>
+                    )}
+                    {category.color && (
+                      <span
+                        className="px-2 py-0.5 rounded"
+                        style={{
+                          backgroundColor: category.color,
+                          color: 'white',
+                        }}
+                      >
+                        {category.color}
+                      </span>
+                    )}
+                  </div>
+                </CardContent>
+              </Card>
+            </Link>
           ))}
         </div>
       )}

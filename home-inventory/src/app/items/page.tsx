@@ -2,17 +2,38 @@ import Link from 'next/link'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
-import { getAllItems } from '@/db/queries'
+import { getAllItems, getItemsByCategory } from '@/db/queries'
 import { Breadcrumbs } from '@/components/layout/breadcrumbs'
+import { prisma } from '@/lib/db'
 
-export default async function ItemsPage() {
-  const items = await getAllItems()
+interface ItemsPageProps {
+  searchParams: Promise<{ categoryId?: string }>
+}
+
+export default async function ItemsPage({ searchParams }: ItemsPageProps) {
+  const params = await searchParams
+  const categoryId = params.categoryId
+  const items = categoryId ? await getItemsByCategory(categoryId) : await getAllItems()
+
+  // Get category name if filtering
+  const category = categoryId
+    ? await prisma.category.findUnique({ where: { id: categoryId } })
+    : null
 
   return (
     <main className="container mx-auto p-8">
       <Breadcrumbs />
       <div className="flex justify-between items-center mb-8">
-        <h1 className="text-4xl font-bold">Items</h1>
+        <div>
+          <h1 className="text-4xl font-bold">
+            {category ? `${category.name} Items` : 'Items'}
+          </h1>
+          {category && (
+            <Link href="/items" className="text-sm text-muted-foreground hover:underline mt-2 inline-block">
+              View all items
+            </Link>
+          )}
+        </div>
         <Link href="/items/new">
           <Button>Add New Item</Button>
         </Link>

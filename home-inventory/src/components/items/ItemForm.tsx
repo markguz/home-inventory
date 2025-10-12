@@ -72,7 +72,9 @@ export function ItemForm({ categories, defaultValues, onSubmit }: ItemFormProps)
         <Input
           id="minQuantity"
           type="number"
-          {...register('minQuantity', { valueAsNumber: true })}
+          {...register('minQuantity', {
+            setValueAs: (v) => v === '' || v === null ? undefined : Number(v)
+          })}
           placeholder="Optional - alerts when stock is low"
         />
         <p className="text-xs text-muted-foreground mt-1">
