@@ -69,6 +69,25 @@ export async function getAllCategories() {
 
 export async function getAllTags() {
   return prisma.tag.findMany({
+    include: {
+      _count: {
+        select: { itemTags: true }
+      }
+    },
+    orderBy: {
+      name: 'asc'
+    }
+  })
+}
+
+export async function getAllLocations() {
+  return prisma.location.findMany({
+    include: {
+      _count: {
+        select: { items: true }
+      },
+      parent: true
+    },
     orderBy: {
       name: 'asc'
     }
