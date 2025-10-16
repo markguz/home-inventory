@@ -48,13 +48,91 @@ export class OcrService {
     if (this.initialized) return;
 
     try {
-      this.worker = await createWorker('eng', 1, {
+      // For Next.js server-side execution, we need to explicitly provide the worker path
+      // to avoid module resolution issues in the server context
+      interface WorkerOptions {
+        logger: (m: { status: string; progress?: number }) => void;
+        workerPath?: string;
+      }
+
+      const workerOptions: WorkerOptions = {
         logger: (m) => {
           if (m.status === 'recognizing text') {
             console.log(`OCR Progress: ${Math.round((m.progress || 0) * 100)}%`);
           }
         },
-      });
+      };
+
+      // In Node.js environments (including Next.js server functions),
+      // resolve the tesseract.js worker-script path explicitly
+      // Worker Threads requires ABSOLUTE paths
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      if ((typeof window === 'undefined') && (global as any).process) {
+        try {
+          // eslint-disable-next-line @typescript-eslint/no-require-imports, @typescript-eslint/no-var-requires
+          const path = require('path');
+          // eslint-disable-next-line @typescript-eslint/no-require-imports, @typescript-eslint/no-var-requires
+          const fs = require('fs');
+
+          // Method 1: Try to resolve from require.resolve (but handle path mangling in Next.js)
+          let workerScriptPath: string | null = null;
+
+          try {
+            // eslint-disable-next-line @typescript-eslint/no-require-imports, @typescript-eslint/no-var-requires
+            const moduleResolve = require.resolve;
+            let tesseractModulePath = moduleResolve('tesseract.js');
+
+            // Fix path mangling in Next.js server context (remove [project] placeholders)
+            tesseractModulePath = tesseractModulePath.replace(/\/\[project\]\/home-inventory/g, '');
+
+            const tesseractDir = path.dirname(tesseractModulePath);
+            const candidatePath = path.resolve(tesseractDir, 'worker-script', 'node', 'index.js');
+
+            // Verify the path exists before using it
+            if (fs.existsSync(candidatePath)) {
+              workerScriptPath = candidatePath;
+            }
+          } catch (resolveError) {
+            console.warn('[OCR] Direct resolve failed, trying fallback method', resolveError);
+          }
+
+          // Method 2: Fallback - assume standard node_modules location
+          if (!workerScriptPath) {
+            const fallbackPath = path.resolve(
+              process.cwd(),
+              'node_modules',
+              'tesseract.js',
+              'src',
+              'worker-script',
+              'node',
+              'index.js'
+            );
+
+            if (fs.existsSync(fallbackPath)) {
+              workerScriptPath = fallbackPath;
+            }
+          }
+
+          // Method 3: Last resort - check parent directories
+          if (!workerScriptPath) {
+            const nodeModulesPath = path.resolve(process.cwd(), '..', 'node_modules', 'tesseract.js', 'src', 'worker-script', 'node', 'index.js');
+            if (fs.existsSync(nodeModulesPath)) {
+              workerScriptPath = nodeModulesPath;
+            }
+          }
+
+          if (workerScriptPath) {
+            console.log(`[OCR] Using worker path: ${workerScriptPath}`);
+            workerOptions.workerPath = workerScriptPath;
+          } else {
+            console.warn('[OCR] Could not find tesseract.js worker path, using default');
+          }
+        } catch (pathError) {
+          console.warn('[OCR] Error resolving worker path, using default', pathError);
+        }
+      }
+
+      this.worker = await createWorker('eng', 1, workerOptions);
       this.initialized = true;
     } catch (error) {
       console.error('Failed to initialize OCR worker:', error);
