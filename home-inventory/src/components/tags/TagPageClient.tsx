@@ -6,6 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { PlusIcon, Tag as TagIcon } from 'lucide-react'
 import { Tag } from '@/types'
+import { TagForm } from './TagForm'
 
 interface TagPageClientProps {
   tags: (Tag & { _count?: { itemTags: number } })[]
@@ -77,21 +78,11 @@ export function TagPageClient({ tags }: TagPageClientProps) {
         </div>
       )}
 
-      {showCreateDialog && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-          <Card className="w-full max-w-md">
-            <CardHeader>
-              <CardTitle>Add Tag</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <p className="text-muted-foreground mb-4">
-                Tag form coming soon. Use the API to create tags for now.
-              </p>
-              <Button onClick={() => setShowCreateDialog(false)}>Close</Button>
-            </CardContent>
-          </Card>
-        </div>
-      )}
+      <TagForm
+        open={showCreateDialog}
+        onOpenChange={setShowCreateDialog}
+        mode="create"
+      />
     </div>
   )
 }
