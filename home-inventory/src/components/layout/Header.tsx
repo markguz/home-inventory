@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Package, Home, Tag, MapPin, FolderOpen, Plus } from 'lucide-react';
+import { Package, Home, Tag, MapPin, FolderOpen, Plus, ScanLine } from 'lucide-react';
 import { AuthButton } from '@/components/auth/AuthButton';
 
 export function Header() {
@@ -76,6 +76,17 @@ export function Header() {
             >
               <Tag className="w-4 h-4" />
               <span>Tags</span>
+            </Link>
+            <Link
+              href="/receipts"
+              className={`flex items-center space-x-1 px-3 py-2 rounded-md text-sm font-medium ${
+                isActive('/receipts')
+                  ? 'bg-blue-100 text-blue-700'
+                  : 'text-gray-700 hover:bg-gray-100'
+              }`}
+            >
+              <ScanLine className="w-4 h-4" />
+              <span>Receipt</span>
             </Link>
           </nav>
 

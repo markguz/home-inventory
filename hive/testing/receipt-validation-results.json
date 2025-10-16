@@ -1,0 +1,99 @@
+{
+  "summary": {
+    "totalReceipts": 3,
+    "successfulReceipts": 3,
+    "failedReceipts": 0,
+    "averageOcrConfidence": "49.00%",
+    "averageParserConfidence": "29.10%",
+    "totalItemsExtracted": 3,
+    "testDuration": "2.48s",
+    "timestamp": "2025-10-16T01:32:01.341Z"
+  },
+  "results": [
+    {
+      "receiptName": "heb.jpg",
+      "timestamp": "2025-10-16T01:32:01.283Z",
+      "success": true,
+      "ocrConfidence": 0.34999999999999976,
+      "ocrLines": 44,
+      "ocrDuration": 2.19,
+      "parsedReceipt": {
+        "items": [
+          {
+            "id": "item-1",
+            "name": ") Geme BriL POPERS TCT",
+            "price": 0.91,
+            "quantity": 1,
+            "confidence": 0.35,
+            "lineNumber": 1,
+            "rawText": ") Geme BriL POPERS TCT 0.91"
+          },
+          {
+            "id": "item-31",
+            "name": "Web (0 FASOND GTS 42 £",
+            "price": 1.48,
+            "quantity": 1,
+            "confidence": 0.35,
+            "lineNumber": 31,
+            "rawText": "2 Web (0 FASOND GTS 42 £1.48"
+          },
+          {
+            "id": "item-32",
+            "name": "W crac bag RIE a £",
+            "price": 1.44,
+            "quantity": 1,
+            "confidence": 0.35,
+            "lineNumber": 32,
+            "rawText": "28 W crac bag RIE a £1.44"
+          }
+        ],
+        "total": null,
+        "subtotal": null,
+        "tax": 0.17,
+        "date": null,
+        "merchantName": null,
+        "confidence": 0.4249999999999999,
+        "rawText": "| cose ox wom\n) Geme BriL POPERS TCT 0.91\n3 sic 00\nTse Uy 0mW 18\n4 velo savas Hi\norn Eh\n10s 20 ;\nTae y LEA 10\n6 swims pert\nDati d 1 2WA 09 \\\n1  dvooaces we To Si2E r\nVet URN 0%\n8 WCE 3\nDesa dU LEA LW\nosu wis HU\n0.51 ibs § LE |\n10 WCINTEH e165 0 {1 de\n6.4 ibs ¥ TRE\n1 90 Wve ae a\nShab ‘ | AX\n12 RostED Sic feb ho “ |\n3 FLL Pin 8 ‘ pe\n14 Gade Tw BEE] x\n5 Gy Lov Li\n6 BACHE vie 4\n17 eres OV Lo\n16.0 © }\n1 Soon Sa | 4 E198 )\n19 HEB PITIED PRAFS Pe\n1 aati pus hort Fo 1% Pe\n2 SOAR coon pus F194 \\\n2 Web (0 FASOND GTS 42 £1.48\n28 W crac bag RIE a £1.44\n24 CouTRaL wiRKE! BAG 29 Ya\n25 GRGANIC POPC Poa |\n2 Anes, SOFT ITE 45 10 {\n27 heb psn GRU TUKEY F121 |\n78 168 VITANIN D 50001U S713 9400\n29 168 LG GRADE 4A 601 £Gos F141\nEm 1\nSales Tax 0.17 Id\nLurvessassssen Total Salesss 53.28 Vy\na 0A 9.00 AC)\nec: 6m 8 | 1"
+      },
+      "fileSizeKB": 57.4
+    },
+    {
+      "receiptName": "Untitled.jpeg",
+      "timestamp": "2025-10-16T01:32:01.305Z",
+      "success": true,
+      "ocrConfidence": 0.73,
+      "ocrLines": 1,
+      "ocrDuration": 0.02,
+      "parsedReceipt": {
+        "items": [],
+        "total": null,
+        "subtotal": null,
+        "tax": null,
+        "date": null,
+        "merchantName": null,
+        "confidence": 0.292,
+        "rawText": "|"
+      },
+      "fileSizeKB": 7.04
+    },
+    {
+      "receiptName": "wholefoods.jpeg",
+      "timestamp": "2025-10-16T01:32:01.340Z",
+      "success": true,
+      "ocrConfidence": 0.39,
+      "ocrLines": 2,
+      "ocrDuration": 0.04,
+      "parsedReceipt": {
+        "items": [],
+        "total": null,
+        "subtotal": null,
+        "tax": null,
+        "date": null,
+        "merchantName": null,
+        "confidence": 0.15600000000000003,
+        "rawText": "4 :\njt Hl"
+      },
+      "fileSizeKB": 5.41
+    }
+  ]
+}

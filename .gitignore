@@ -39,3 +39,4 @@ node_modules/
 # Local env files
 .env*.local
 .env
+sample_receipts/

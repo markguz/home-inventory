@@ -1,0 +1,75 @@
+# Page snapshot
+
+```yaml
+- generic [ref=e1]:
+  - banner [ref=e2]:
+    - generic [ref=e4]:
+      - link "Home Inventory" [active] [ref=e5] [cursor=pointer]:
+        - /url: /
+        - img [ref=e6]
+        - generic [ref=e10]: Home Inventory
+      - navigation [ref=e11]:
+        - link "Dashboard" [ref=e12] [cursor=pointer]:
+          - /url: /
+          - img [ref=e13]
+          - generic [ref=e16]: Dashboard
+        - link "Items" [ref=e17] [cursor=pointer]:
+          - /url: /items
+          - img [ref=e18]
+          - generic [ref=e22]: Items
+        - link "Categories" [ref=e23] [cursor=pointer]:
+          - /url: /categories
+          - img [ref=e24]
+          - generic [ref=e26]: Categories
+        - link "Locations" [ref=e27] [cursor=pointer]:
+          - /url: /locations
+          - img [ref=e28]
+          - generic [ref=e31]: Locations
+        - link "Tags" [ref=e32] [cursor=pointer]:
+          - /url: /tags
+          - img [ref=e33]
+          - generic [ref=e36]: Tags
+      - generic [ref=e37]:
+        - link "Add Item" [ref=e38] [cursor=pointer]:
+          - /url: /items/new
+          - img [ref=e39]
+          - generic [ref=e40]: Add Item
+        - link "Sign in to your account" [ref=e41] [cursor=pointer]:
+          - /url: /login
+          - button "Sign in to your account" [ref=e42]:
+            - img
+            - generic [ref=e43]: Sign In
+  - generic [ref=e44]:
+    - banner [ref=e45]:
+      - link "Home Inventory" [ref=e47] [cursor=pointer]:
+        - /url: /
+        - img [ref=e48]
+        - generic [ref=e52]: Home Inventory
+    - main [ref=e53]:
+      - generic [ref=e55]:
+        - generic [ref=e56]:
+          - generic [ref=e57]: Welcome back
+          - generic [ref=e58]: Enter your credentials to access your account
+        - generic [ref=e60]:
+          - generic [ref=e61]:
+            - generic [ref=e62]: Email
+            - textbox "Email" [ref=e63]:
+              - /placeholder: name@example.com
+          - generic [ref=e64]:
+            - generic [ref=e65]: Password
+            - textbox "Password" [ref=e66]:
+              - /placeholder: Enter your password
+          - button "Sign in to your account" [ref=e67]:
+            - img
+            - text: Sign In
+        - paragraph [ref=e69]:
+          - text: Don't have an account?
+          - link "Sign up" [ref=e70] [cursor=pointer]:
+            - /url: /register
+    - contentinfo [ref=e71]:
+      - generic [ref=e72]: © 2025 Home Inventory. All rights reserved.
+  - region "Notifications alt+T"
+  - button "Open Next.js Dev Tools" [ref=e78] [cursor=pointer]:
+    - img [ref=e79]
+  - alert [ref=e82]
+```

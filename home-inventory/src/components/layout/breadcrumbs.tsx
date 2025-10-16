@@ -26,6 +26,9 @@ const routeLabels: Record<string, RouteConfig> = {
   "": { label: "Home", icon: <Home className="size-4" /> },
   items: { label: "Items" },
   categories: { label: "Categories" },
+  locations: { label: "Locations" },
+  tags: { label: "Tags" },
+  receipts: { label: "Receipts" },
   new: { label: "New Item" },
 }
 
