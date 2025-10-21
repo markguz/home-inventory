@@ -1,0 +1,348 @@
+================================================================================
+HOME INVENTORY PROJECT - RESEARCH FINDINGS SUMMARY
+================================================================================
+
+RESEARCH COMPLETED: October 19, 2025
+RESEARCHER ROLE: Hive Mind Analyst
+STATUS: Complete - Ready for Development
+
+================================================================================
+1. PROJECT STRUCTURE
+================================================================================
+
+Source Files: 88 TypeScript files
+Test Files: 2,397 lines of E2E tests across 7 test suites
+Architecture: Next.js 15 with App Router, TypeScript, Prisma, SQLite
+Database: SQLite with Prisma ORM (file-based: dev.db)
+
+Key Directories:
+- /src                - Source code (app, components, lib, auth)
+- /tests/e2e          - Playwright E2E tests (7 test files)
+- /tests/fixtures     - Test data (7 fixture files)
+- /tests/setup        - Test utilities and configuration
+- /prisma             - Database schema and migrations
+
+================================================================================
+2. PLAYWRIGHT E2E TEST SETUP
+================================================================================
+
+Configuration: playwright.config.ts
+Test Directory: ./tests/e2e
+Base URL: http://localhost:3000
+Parallel Execution: 8 workers (local), 1 (CI)
+Retries: 0 (local), 2 (CI)
+Reporter: HTML
+Supported Browsers: 5 (Chromium, Firefox, WebKit, Pixel 5, iPhone 12)
+Web Server: Auto-starts npm run dev on port 3000
+
+Test Files (2,397 total lines):
+- auth.spec.ts (442 lines) - Authentication flows
+- receipt-processing.spec.ts (636 lines) - Receipt OCR
+- breadcrumb-navigation.spec.ts (320 lines) - Navigation
+- consumables-workflow.spec.ts (350 lines) - Low-stock alerts
+- add-item.spec.ts (181 lines) - Item creation
+- edit-item.spec.ts (240 lines) - Item editing
+- search-filter.spec.ts (228 lines) - Search functionality
+
+================================================================================
+3. AUTHENTICATION SYSTEM
+================================================================================
+
+Provider: NextAuth.js v5 (Credentials-based)
+Session Strategy: JWT (30-day expiration)
+Password Hashing: bcryptjs (12 salt rounds)
+Database Storage: SQLite (User model)
+
+Key Files:
+- /src/auth.ts - NextAuth.js configuration (83 lines)
+- /src/lib/auth-utils.ts - Helper functions (85 lines)
+- /src/app/(auth)/login/page.tsx - Login form (153 lines)
+- /src/app/api/auth/[...nextauth]/route.ts - NextAuth route
+- /prisma/schema.prisma - User schema
+
+Authentication Flow:
+1. User navigates to /login
+2. Enters email and password
+3. NextAuth validates against database
+4. Verifies bcrypt password hash
+5. Creates JWT token
+6. Sets HTTP-only cookie
+7. Redirects to dashboard (/)
+8. Subsequent requests include JWT for session verification
+
+Test Credentials:
+- Email: mark@markguz.com
+- Password: eZ$5nzgicDSnBCGL
+
+================================================================================
+4. EXISTING AUTH TESTS (auth.spec.ts)
+================================================================================
+
+Test Coverage: 17 organized tests across 6 groups
+
+Test Groups:
+1. Login Flow (7 tests)
+   - Valid credential login
+   - Invalid email/password error handling
+   - Field validation errors
+   - Loading state management
+   - Success toast notifications
+
+2. Logout Flow (2 tests)
+   - Successful logout redirect
+   - Session persistence after logout
+
+3. Protected Routes (3 tests)
+   - Unauthenticated redirect
+   - Authenticated route access
+   - Session maintenance during navigation
+
+4. User Menu (2 tests)
+   - Email display in dropdown
+   - Menu visibility based on auth state
+
+5. Accessibility (2 tests)
+   - Form labels and ARIA attributes
+   - Keyboard navigation
+
+6. Browser Compatibility (1 test)
+   - Multiple viewport sizes (mobile, tablet, desktop)
+
+Helper Functions:
+- loginHelper() - Perform login with custom credentials
+- logoutHelper() - Logout from application
+- assertLoggedIn() - Verify authenticated state
+- assertLoggedOut() - Verify unauthenticated state
+
+================================================================================
+5. TEST UTILITIES & FIXTURES
+================================================================================
+
+Test Utilities Location: /tests/setup/test-utils.tsx (177 lines)
+
+Core Utilities:
+- createTestQueryClient() - Setup React Query for tests
+- renderWithProviders() - Render with necessary providers
+- createTestDatabase() - Setup Prisma test database
+- cleanupTestDatabase() - Teardown test database
+- buildCategory() - Create test category data
+- buildLocation() - Create test location data
+- buildItem() - Create test item data
+- mockApiResponse() - Mock successful API responses
+- mockApiError() - Mock API error responses
+- mockLocalStorage() - Mock browser localStorage
+
+Test Fixtures Available:
+- /tests/fixtures/items.ts - Item mock data
+- /tests/fixtures/categories.ts - Category mock data
+- /tests/fixtures/locations.ts - Location mock data
+- /tests/fixtures/tags.ts - Tag mock data
+- /tests/fixtures/alert-fixtures.ts - Alert mock data
+- /tests/fixtures/breadcrumb-fixtures.ts - Breadcrumb mock data
+- /tests/fixtures/receipt-fixtures.ts - Receipt OCR mock data
+
+================================================================================
+6. ENVIRONMENT CONFIGURATION
+================================================================================
+
+Environment File: .env (7 lines)
+Location: /export/projects/homeinventory/home-inventory/
+Template: .env.example
+
+Critical Variables:
+DATABASE_URL="file:./dev.db"
+NEXTAUTH_SECRET="6TYo5PRHScBDs1gCOowoX451NGa8vssVxhmrC4Orbko="
+NEXTAUTH_URL="http://localhost:3000"
+USERNAME="mark@markguz.com"
+PASSWORD="eZ$5nzgicDSnBCGL"
+
+Database:
+- Type: SQLite (serverless, file-based)
+- ORM: Prisma v6.17.1
+- File: ./dev.db (in project root)
+- Schema: /prisma/schema.prisma
+
+NextAuth Configuration:
+- Secret: 32-byte Base64 (for JWT signing)
+- URL: Base application URL for callbacks
+- Strategy: JWT with 30-day session maxAge
+
+================================================================================
+7. RUNNING THE TESTS
+================================================================================
+
+Prerequisites:
+- Node.js 20+
+- npm or yarn
+- Development server running: npm run dev
+
+Test Commands:
+npm run test:e2e              # Run all E2E tests
+npm run test:e2e:ui           # Run in UI mode (interactive)
+npm run test:e2e:debug        # Debug mode for troubleshooting
+
+Specific Test Execution:
+npx playwright test tests/e2e/auth.spec.ts    # Run auth tests only
+npx playwright test auth.spec.ts -g "Login Flow"  # Run specific group
+npx playwright test --project=chromium         # Run specific browser
+npx playwright show-report                     # View HTML report
+
+Environment Setup:
+export USERNAME="test@example.com"
+export PASSWORD="TestPassword123"
+npm run test:e2e
+
+================================================================================
+8. PROJECT TECH STACK
+================================================================================
+
+Frontend:
+- Next.js 15.5.4 (App Router, Turbopack)
+- React 19.1.0
+- TypeScript 5
+- Tailwind CSS v4
+- shadcn/ui (Radix UI + Tailwind)
+- React Hook Form + Zod validation
+- React Query (TanStack)
+
+Backend:
+- Next.js API Routes
+- NextAuth.js v5 (Credentials provider)
+- Prisma ORM v6.17.1
+- SQLite database
+- bcryptjs password hashing
+
+Testing:
+- Playwright v1.56.0 (E2E)
+- Vitest v3.2.4 (Unit/Component)
+- Jest v30.2.0 (Alternative test runner)
+- Testing Library (React, User Event, Jest DOM)
+- Jest Axe (Accessibility testing)
+
+Development:
+- Turbopack (build tool)
+- ESLint 9 (linting)
+- Prettier (formatting)
+- npm (package manager)
+
+================================================================================
+9. KEY FINDINGS
+================================================================================
+
+STRENGTHS:
+✓ Comprehensive E2E test coverage (2,397 lines)
+✓ Well-organized test structure with helper functions
+✓ Cross-browser testing (5 browsers including mobile)
+✓ Secure authentication implementation (NextAuth + bcrypt)
+✓ Proper environment variable management
+✓ Database setup with Prisma migrations
+✓ Test utilities with database cleanup
+✓ Fixture data for all major entities
+✓ Accessibility and keyboard navigation testing
+
+AREAS FOR ENHANCEMENT:
+- Expand unit test coverage
+- Add visual regression testing
+- Implement rate limiting on auth endpoints
+- Add password reset functionality
+- Performance benchmarking in E2E tests
+- General E2E documentation (beyond receipts)
+
+================================================================================
+10. CRITICAL FILE LOCATIONS
+================================================================================
+
+Authentication:
+- /src/auth.ts (83 lines)
+- /src/lib/auth-utils.ts (85 lines)
+- /src/app/(auth)/login/page.tsx (153 lines)
+- /src/app/api/auth/[...nextauth]/route.ts
+- /tests/e2e/auth.spec.ts (442 lines)
+
+Configuration:
+- /playwright.config.ts (47 lines)
+- /vitest.config.ts (39 lines)
+- /jest.config.js
+- /next.config.ts
+- /.env (7 lines)
+- /.env.example
+
+Database:
+- /prisma/schema.prisma (100+ lines)
+- /src/lib/db.ts
+
+Test Utilities:
+- /tests/setup/test-utils.tsx (177 lines)
+- /tests/fixtures/ (7 fixture files)
+- /tests/helpers/receipt-test-helpers.ts
+
+================================================================================
+11. NEXTAUTH CONFIGURATION SUMMARY
+================================================================================
+
+Session:
+- Strategy: JWT (JSON Web Tokens)
+- Max Age: 30 days (2,592,000 seconds)
+- Storage: HTTP-only cookies
+
+Callbacks:
+- jwt(): Add user ID and role to token
+- session(): Add custom fields to session
+
+Pages:
+- Sign In: /auth/signin
+- Sign Out: /auth/signout
+- Error: /auth/error
+
+Secret: 6TYo5PRHScBDs1gCOowoX451NGa8vssVxhmrC4Orbko=
+Debug: Enabled in development
+
+================================================================================
+12. DATABASE SCHEMA HIGHLIGHTS
+================================================================================
+
+User Model:
+- id (CUID)
+- email (unique)
+- password (bcrypt hashed)
+- name (optional)
+- role (USER | ADMIN)
+- emailVerified (optional)
+- image (optional)
+- Indexed on email for fast lookups
+
+Session Model:
+- sessionToken (unique)
+- userId (foreign key)
+- expires (DateTime)
+
+Relations:
+- User has many Items
+- User has many Sessions
+- User has many Accounts
+
+================================================================================
+ANALYSIS COMPLETE
+================================================================================
+
+All necessary information for understanding the project's testing infrastructure,
+authentication system, and environment configuration has been documented and
+organized. The project is ready for development work on enhanced test coverage
+or feature additions.
+
+Key Takeaways:
+1. Solid Playwright E2E test foundation (2,397 lines)
+2. Secure NextAuth.js v5 implementation
+3. Well-organized test utilities and fixtures
+4. Proper environment configuration
+5. Cross-browser and mobile testing support
+6. Ready for concurrent agent-based development
+
+Next Steps:
+1. Review complete analysis in RESEARCH_ANALYSIS.md
+2. Start parallel development with agents
+3. Run existing tests to verify setup
+4. Build upon existing test patterns
+
+================================================================================
+End of Summary

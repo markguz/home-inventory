@@ -33,11 +33,25 @@ async function waitForToast(page: Page, message: string, timeout = 10000) {
 
 // Helper function to login (reuse from auth tests)
 async function login(page: Page) {
+  const email = 'mark@markguz.com';
+  const password = 'eZ$5nzgicDSnBCGL';
+
+  console.log(`Logging in as: ${email}`);
+
   await page.goto('/login');
-  await page.fill('input[name="email"]', process.env.USERNAME || 'test@example.com');
-  await page.fill('input[name="password"]', process.env.PASSWORD || 'password');
-  await page.click('button[type="submit"]');
-  await page.waitForURL('/');
+  await page.waitForSelector('input[type="email"]', { timeout: 10000 });
+
+  // Fill in credentials
+  await page.fill('input[type="email"]', email);
+  await page.fill('input[type="password"]', password);
+
+  // Click submit
+  const submitButton = page.locator('button[type="submit"]');
+  await submitButton.click();
+
+  // Wait for redirect or home page
+  await page.waitForURL('/', { timeout: 60000 });
+  console.log('✓ Login successful');
 }
 
 // Helper to count items in database
