@@ -1,0 +1,55 @@
+# Page snapshot
+
+```yaml
+- generic [active] [ref=e1]:
+  - banner [ref=e2]:
+    - generic [ref=e4]:
+      - link "Home Inventory" [ref=e5] [cursor=pointer]:
+        - /url: /
+        - img [ref=e6]
+        - generic [ref=e10]: Home Inventory
+      - navigation [ref=e11]:
+        - link "Dashboard" [ref=e12] [cursor=pointer]:
+          - /url: /
+          - img [ref=e13]
+          - generic [ref=e16]: Dashboard
+        - link "Items" [ref=e17] [cursor=pointer]:
+          - /url: /items
+          - img [ref=e18]
+          - generic [ref=e22]: Items
+        - link "Categories" [ref=e23] [cursor=pointer]:
+          - /url: /categories
+          - img [ref=e24]
+          - generic [ref=e26]: Categories
+        - link "Locations" [ref=e27] [cursor=pointer]:
+          - /url: /locations
+          - img [ref=e28]
+          - generic [ref=e31]: Locations
+        - link "Tags" [ref=e32] [cursor=pointer]:
+          - /url: /tags
+          - img [ref=e33]
+          - generic [ref=e36]: Tags
+        - link "Receipt" [ref=e37] [cursor=pointer]:
+          - /url: /receipts
+          - img [ref=e38]
+          - generic [ref=e43]: Receipt
+      - link "Add Item" [ref=e45] [cursor=pointer]:
+        - /url: /items/new
+        - img [ref=e46]
+        - generic [ref=e47]: Add Item
+  - generic [ref=e49]:
+    - generic [ref=e50]:
+      - heading "Receipt Processing" [level=1] [ref=e51]
+      - paragraph [ref=e52]: Upload a receipt image to automatically extract and add items to your inventory
+    - generic [ref=e54] [cursor=pointer]:
+      - button "Choose File" [ref=e55]
+      - generic [ref=e56]:
+        - img [ref=e57]
+        - generic [ref=e60]: Upload receipt image
+        - generic [ref=e61]: Drag and drop or click to select
+        - generic [ref=e62]: Supports JPEG, PNG, WebP (max 10MB)
+  - region "Notifications alt+T"
+  - button "Open Next.js Dev Tools" [ref=e68] [cursor=pointer]:
+    - img [ref=e69]
+  - alert [ref=e72]
+```
