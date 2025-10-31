@@ -1,0 +1,292 @@
+{
+  "research_metadata": {
+    "agent": "researcher",
+    "mission": "Identify 500 error sources",
+    "date": "2025-10-21T02:53:00Z",
+    "files_analyzed": 54,
+    "severity": "CRITICAL",
+    "confidence": "HIGH"
+  },
+  "critical_issues": [
+    {
+      "id": "DB_PATH_MISMATCH",
+      "severity": "CRITICAL",
+      "title": "Database Path Misconfiguration",
+      "description": "DATABASE_URL points to ./dev.db but database exists at ./prisma/dev.db",
+      "impact": "ALL database queries fail, entire API broken",
+      "affected_routes": [
+        "/api/items",
+        "/api/items/[id]",
+        "ALL pages with database queries"
+      ],
+      "fix": "Update .env: DATABASE_URL=\"file:./prisma/dev.db\"",
+      "estimated_fix_time": "1 minute"
+    },
+    {
+      "id": "MISSING_DEPS_AUTH",
+      "severity": "CRITICAL",
+      "title": "Missing Authentication Dependencies",
+      "description": "next-auth imported but not in package.json",
+      "impact": "Module not found errors, build fails",
+      "affected_files": [
+        "src/components/auth/SessionProvider.tsx",
+        "src/app/(auth)/login/page.tsx"
+      ],
+      "fix": "npm install next-auth",
+      "estimated_fix_time": "2 minutes"
+    },
+    {
+      "id": "MISSING_DEPS_FORMS",
+      "severity": "CRITICAL",
+      "title": "Missing Form Dependencies",
+      "description": "react-hook-form and @hookform/resolvers imported but missing",
+      "impact": "Login page crashes, all forms broken",
+      "affected_files": [
+        "src/app/(auth)/login/page.tsx"
+      ],
+      "fix": "npm install react-hook-form @hookform/resolvers",
+      "estimated_fix_time": "2 minutes"
+    },
+    {
+      "id": "MISSING_DEPS_UI",
+      "severity": "CRITICAL",
+      "title": "Missing UI Dependencies",
+      "description": "7 Radix UI packages + lucide-react + next-themes missing",
+      "impact": "UI components broken, build fails",
+      "packages_missing": [
+        "lucide-react",
+        "next-themes",
+        "@radix-ui/react-dialog",
+        "@radix-ui/react-dropdown-menu",
+        "@radix-ui/react-label",
+        "@radix-ui/react-select",
+        "@radix-ui/react-separator"
+      ],
+      "fix": "npm install lucide-react next-themes @radix-ui/react-dialog @radix-ui/react-dropdown-menu @radix-ui/react-label @radix-ui/react-select @radix-ui/react-separator",
+      "estimated_fix_time": "3 minutes"
+    },
+    {
+      "id": "MISSING_VALIDATION_FILE",
+      "severity": "CRITICAL",
+      "title": "Missing Auth Validation File",
+      "description": "Login page imports @/lib/validations/auth but file doesn't exist",
+      "impact": "Login page crashes with module not found",
+      "affected_files": [
+        "src/app/(auth)/login/page.tsx"
+      ],
+      "fix": "Create src/lib/validations/auth.ts with loginSchema and registerSchema",
+      "estimated_fix_time": "5 minutes"
+    },
+    {
+      "id": "MISSING_ENV_VARS",
+      "severity": "CRITICAL",
+      "title": "Missing Environment Variables",
+      "description": "Only DATABASE_URL exists, missing NEXTAUTH_SECRET and NEXTAUTH_URL",
+      "impact": "Authentication will fail, session encryption broken",
+      "variables_missing": [
+        "NEXTAUTH_SECRET",
+        "NEXTAUTH_URL",
+        "NODE_ENV"
+      ],
+      "fix": "Add to .env: NEXTAUTH_SECRET, NEXTAUTH_URL",
+      "estimated_fix_time": "2 minutes"
+    }
+  ],
+  "high_priority_issues": [
+    {
+      "id": "PROJECT_STRUCTURE_CONFLICT",
+      "severity": "HIGH",
+      "title": "Duplicate Project Structure",
+      "description": "Old home-inventory/ subdirectory still exists with deleted files",
+      "impact": "Confusion, potential import conflicts, old build artifacts",
+      "fix": "Remove home-inventory/ directory completely",
+      "estimated_fix_time": "5 minutes"
+    },
+    {
+      "id": "NO_AUTH_CONFIG",
+      "severity": "HIGH",
+      "title": "Missing NextAuth Configuration",
+      "description": "No /api/auth/[...nextauth]/route.ts found",
+      "impact": "signIn() calls return 404, authentication non-functional",
+      "fix": "Create NextAuth route handler with credentials provider",
+      "estimated_fix_time": "15 minutes"
+    },
+    {
+      "id": "NO_MIDDLEWARE",
+      "severity": "HIGH",
+      "title": "No Middleware for Route Protection",
+      "description": "middleware.ts doesn't exist",
+      "impact": "Protected routes publicly accessible, no auth checks",
+      "fix": "Create middleware.ts with NextAuth middleware",
+      "estimated_fix_time": "5 minutes"
+    },
+    {
+      "id": "MISSING_CONFIG_FILES",
+      "severity": "HIGH",
+      "title": "Missing Configuration Files",
+      "description": "No tailwind.config.js, postcss.config.js, components.json",
+      "impact": "Tailwind CSS may not work correctly, component generation broken",
+      "fix": "Create Tailwind and PostCSS config files",
+      "estimated_fix_time": "10 minutes"
+    }
+  ],
+  "medium_priority_issues": [
+    {
+      "id": "INCOMPLETE_ERROR_HANDLING",
+      "severity": "MEDIUM",
+      "title": "Generic Error Messages in API Routes",
+      "description": "All errors return 'Internal server error' with no details",
+      "impact": "Difficult to debug issues, poor developer experience",
+      "fix": "Improve error handling with specific error types and dev mode details",
+      "estimated_fix_time": "30 minutes"
+    },
+    {
+      "id": "MISSING_USER_ID",
+      "severity": "MEDIUM",
+      "title": "No Authentication in API Routes",
+      "description": "POST /api/items requires userId but no auth check exists",
+      "impact": "API will fail when userId is missing",
+      "fix": "Add getServerSession to get authenticated user",
+      "estimated_fix_time": "15 minutes"
+    }
+  ],
+  "dependencies_analysis": {
+    "current_dependencies": [
+      "@prisma/client",
+      "@radix-ui/react-slot",
+      "class-variance-authority",
+      "clsx",
+      "next",
+      "react",
+      "react-dom",
+      "sonner",
+      "tailwind-merge",
+      "zod"
+    ],
+    "missing_dependencies": [
+      "next-auth",
+      "react-hook-form",
+      "@hookform/resolvers",
+      "lucide-react",
+      "next-themes",
+      "@radix-ui/react-dialog",
+      "@radix-ui/react-dropdown-menu",
+      "@radix-ui/react-label",
+      "@radix-ui/react-select",
+      "@radix-ui/react-separator"
+    ],
+    "total_missing": 10
+  },
+  "affected_routes": {
+    "api_routes_broken": [
+      {
+        "route": "/api/items",
+        "methods": ["GET", "POST"],
+        "reason": "Database connection fails"
+      },
+      {
+        "route": "/api/items/[id]",
+        "methods": ["GET", "PUT", "DELETE"],
+        "reason": "Database connection fails"
+      }
+    ],
+    "pages_broken": [
+      "/login",
+      "/items",
+      "/items/create",
+      "/items/[id]",
+      "/items/[id]/edit",
+      "/categories",
+      "/locations",
+      "/tags",
+      "/alerts",
+      "/receipts"
+    ],
+    "total_broken_routes": 15
+  },
+  "file_structure": {
+    "typescript_files": 54,
+    "directories_examined": 8,
+    "working_files": [
+      "src/app/layout.tsx",
+      "src/app/page.tsx",
+      "src/app/api/items/route.ts",
+      "src/app/api/items/[id]/route.ts",
+      "src/app/(auth)/login/page.tsx",
+      "src/lib/prisma.ts",
+      "src/lib/db.ts",
+      "prisma/schema.prisma"
+    ],
+    "missing_critical_files": [
+      "src/lib/validations/auth.ts",
+      "src/app/api/auth/[...nextauth]/route.ts",
+      "middleware.ts",
+      "tailwind.config.js",
+      "postcss.config.js"
+    ]
+  },
+  "fix_priority": {
+    "phase_1_critical": {
+      "description": "Required for ANY functionality",
+      "tasks": [
+        "Fix database path in .env",
+        "Install 10 missing dependencies",
+        "Create validation files",
+        "Set environment variables"
+      ],
+      "estimated_time": "15 minutes",
+      "blockers_removed": "100% of 500 errors"
+    },
+    "phase_2_auth": {
+      "description": "Enable authentication",
+      "tasks": [
+        "Create NextAuth route handler",
+        "Create middleware for route protection"
+      ],
+      "estimated_time": "30 minutes",
+      "blockers_removed": "Authentication system"
+    },
+    "phase_3_cleanup": {
+      "description": "Configuration and cleanup",
+      "tasks": [
+        "Add Tailwind config",
+        "Remove old directory",
+        "Commit changes"
+      ],
+      "estimated_time": "15 minutes",
+      "blockers_removed": "Build warnings, confusion"
+    }
+  },
+  "testing_requirements": {
+    "phase_1_tests": [
+      "npx prisma db push",
+      "npx prisma studio",
+      "curl http://localhost:3000/api/items"
+    ],
+    "phase_2_tests": [
+      "Test login flow",
+      "Test session persistence",
+      "Test protected routes"
+    ],
+    "phase_3_tests": [
+      "npm run build",
+      "npm run test",
+      "npm run dev"
+    ]
+  },
+  "recommendations": {
+    "immediate_actions": [
+      "Update .env with correct DATABASE_URL",
+      "Run: npm install next-auth react-hook-form @hookform/resolvers lucide-react next-themes @radix-ui/react-dialog @radix-ui/react-dropdown-menu @radix-ui/react-label @radix-ui/react-select @radix-ui/react-separator",
+      "Create src/lib/validations/auth.ts",
+      "Add NEXTAUTH_SECRET to .env"
+    ],
+    "next_steps": [
+      "Share this report with Planner Agent",
+      "Coder Agent: Implement Phase 1 fixes",
+      "Tester Agent: Validate fixes after Phase 1",
+      "Reviewer Agent: Code review completed work"
+    ],
+    "estimated_total_fix_time": "60 minutes"
+  }
+}

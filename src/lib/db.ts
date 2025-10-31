@@ -1,3 +1,8 @@
+/**
+ * Database client alias
+ * This file provides a consistent import path for the Prisma client
+ * Can be imported as either @/lib/db or @/lib/prisma
+ */
 import { PrismaClient } from '@prisma/client';
 
 const globalForPrisma = globalThis as unknown as {
@@ -12,9 +17,5 @@ export const prisma =
 
 if (process.env.NODE_ENV !== 'production') globalForPrisma.prisma = prisma;
 
-// Graceful shutdown
-if (process.env.NODE_ENV === 'production') {
-  process.on('beforeExit', async () => {
-    await prisma.$disconnect();
-  });
-}
+// Export default for compatibility
+export default prisma;
