@@ -7,16 +7,16 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
 import { Label } from '@/components/ui/label'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
-import { Category } from '@/types'
+import { Category, Location } from '@/types'
 
 interface ItemFormProps {
   categories: Category[]
+  locations: Location[]
   defaultValues?: Partial<ItemFormData>
   onSubmit: (data: FormData) => Promise<void>
 }
 
-export function ItemForm({ categories, defaultValues, onSubmit }: ItemFormProps) {
+export function ItemForm({ categories, locations, defaultValues, onSubmit }: ItemFormProps) {
   const { register, handleSubmit, formState: { errors, isSubmitting } } = useForm<ItemFormData>({
     resolver: zodResolver(itemSchema),
     defaultValues
@@ -57,8 +57,13 @@ export function ItemForm({ categories, defaultValues, onSubmit }: ItemFormProps)
       </div>
 
       <div>
-        <Label htmlFor="locationId">Location ID</Label>
-        <Input id="locationId" {...register('locationId')} placeholder="Select a location ID" />
+        <Label htmlFor="locationId">Location</Label>
+        <select {...register('locationId')} className="w-full rounded-md border p-2">
+          <option value="">Select a location</option>
+          {locations.map(loc => (
+            <option key={loc.id} value={loc.id}>{loc.name}</option>
+          ))}
+        </select>
         {errors.locationId && <p className="text-sm text-red-500">{errors.locationId.message}</p>}
       </div>
 

@@ -1,6 +1,6 @@
 import { redirect, notFound } from 'next/navigation'
 import { ItemForm } from '@/components/items/ItemForm'
-import { getAllCategories, getItemById } from '@/db/queries'
+import { getAllCategories, getAllLocations, getItemById } from '@/db/queries'
 import { updateItem } from '@/app/actions/items'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Breadcrumbs } from '@/components/layout/breadcrumbs'
@@ -23,10 +23,11 @@ export default async function EditItemPage({ params }: EditItemPageProps) {
     redirect('/auth/signin')
   }
 
-  // Fetch item and categories in parallel
-  const [item, categories] = await Promise.all([
+  // Fetch item, categories, and locations in parallel
+  const [item, categories, locations] = await Promise.all([
     getItemById(id),
-    getAllCategories()
+    getAllCategories(),
+    getAllLocations()
   ])
 
   // Check if item exists
@@ -71,6 +72,7 @@ export default async function EditItemPage({ params }: EditItemPageProps) {
         <CardContent>
           <ItemForm
             categories={categories}
+            locations={locations}
             defaultValues={defaultValues}
             onSubmit={handleSubmit}
           />

@@ -1,12 +1,15 @@
 import { redirect } from 'next/navigation'
 import { ItemForm } from '@/components/items/ItemForm'
-import { getAllCategories } from '@/db/queries'
+import { getAllCategories, getAllLocations } from '@/db/queries'
 import { createItem } from '@/app/actions/items'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Breadcrumbs } from '@/components/layout/breadcrumbs'
 
 export default async function NewItemPage() {
-  const categories = await getAllCategories()
+  const [categories, locations] = await Promise.all([
+    getAllCategories(),
+    getAllLocations()
+  ])
 
   async function handleSubmit(formData: FormData) {
     'use server'
@@ -24,7 +27,7 @@ export default async function NewItemPage() {
           <CardTitle>Add New Item</CardTitle>
         </CardHeader>
         <CardContent>
-          <ItemForm categories={categories} onSubmit={handleSubmit} />
+          <ItemForm categories={categories} locations={locations} onSubmit={handleSubmit} />
         </CardContent>
       </Card>
     </main>
