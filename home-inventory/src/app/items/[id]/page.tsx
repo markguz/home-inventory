@@ -6,6 +6,7 @@ import { Badge } from '@/components/ui/badge'
 import { getItemById } from '@/db/queries'
 import { format } from 'date-fns'
 import { Breadcrumbs } from '@/components/layout/breadcrumbs'
+import { Pencil } from 'lucide-react'
 
 export default async function ItemDetailPage({ params }: { params: { id: string } }) {
   const item = await getItemById(params.id)
@@ -19,6 +20,13 @@ export default async function ItemDetailPage({ params }: { params: { id: string 
       <Breadcrumbs />
       <div className="flex justify-between items-center mb-8">
         <h1 className="text-4xl font-bold">{item.name}</h1>
+        {/* Edit button - allows users to navigate to edit page */}
+        <Link href={`/items/${item.id}/edit`}>
+          <Button variant="outline" className="gap-2">
+            <Pencil className="h-4 w-4" aria-hidden="true" />
+            Edit Item
+          </Button>
+        </Link>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">

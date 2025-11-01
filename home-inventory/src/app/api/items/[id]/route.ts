@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/db';
 import { itemUpdateSchema } from '@/lib/validations';
 import { z } from 'zod';
+// SECURITY: Import NextAuth for session management
+import { auth } from '@/auth';
 
 export async function GET(
   request: NextRequest,
@@ -44,7 +46,41 @@ export async function PATCH(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    // SECURITY: Check authentication - user must be logged in
+    const session = await auth();
+    if (!session?.user) {
+      return NextResponse.json(
+        { success: false, error: 'Unauthorized' },
+        { status: 401 }
+      );
+    }
+
     const { id } = await params;
+
+    // SECURITY: Check if item exists before attempting update
+    const existingItem = await prisma.item.findUnique({
+      where: { id },
+      select: { id: true, userId: true },
+    });
+
+    if (!existingItem) {
+      return NextResponse.json(
+        { success: false, error: 'Item not found' },
+        { status: 404 }
+      );
+    }
+
+    // SECURITY: Verify ownership - user can only edit their own items OR be admin
+    const isOwner = existingItem.userId === session.user.id;
+    const isAdmin = session.user.role === 'ADMIN';
+
+    if (!isOwner && !isAdmin) {
+      return NextResponse.json(
+        { success: false, error: 'Forbidden - You do not have permission to edit this item' },
+        { status: 403 }
+      );
+    }
+
     const body = await request.json();
     const validatedData = itemUpdateSchema.parse({ ...body, id });
 
@@ -60,8 +96,46 @@ export async function PATCH(
       }
     });
 
-    // Add tags update if provided
-    if (tagIds !== undefined) {
+    // SECURITY: Validate foreign key references before update
+    if (updateData.categoryId) {
+      const categoryExists = await prisma.category.findUnique({
+        where: { id: updateData.categoryId as string },
+      });
+      if (!categoryExists) {
+        return NextResponse.json(
+          { success: false, error: 'Invalid categoryId - Category does not exist' },
+          { status: 400 }
+        );
+      }
+    }
+
+    if (updateData.locationId) {
+      const locationExists = await prisma.location.findUnique({
+        where: { id: updateData.locationId as string },
+      });
+      if (!locationExists) {
+        return NextResponse.json(
+          { success: false, error: 'Invalid locationId - Location does not exist' },
+          { status: 400 }
+        );
+      }
+    }
+
+    // SECURITY: Validate tag references if provided
+    if (tagIds !== undefined && Array.isArray(tagIds) && tagIds.length > 0) {
+      const existingTags = await prisma.tag.findMany({
+        where: { id: { in: tagIds as string[] } },
+        select: { id: true },
+      });
+
+      if (existingTags.length !== tagIds.length) {
+        return NextResponse.json(
+          { success: false, error: 'Invalid tagIds - One or more tags do not exist' },
+          { status: 400 }
+        );
+      }
+
+      // Add tags update if provided
       dataToUpdate.tags = {
         deleteMany: {},
         create: tagIds.map((tagId: string) => ({
