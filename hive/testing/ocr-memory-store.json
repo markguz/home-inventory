@@ -1,0 +1,84 @@
+{
+  "namespace": "hive/testing/ocr-failure",
+  "timestamp": "2025-10-31T23:05:00Z",
+  "agent": "tester",
+  "task": "OCR scanning failure diagnosis",
+  
+  "findings": {
+    "status": "COMPLETE",
+    "rootCause": "tesseract.js v6 API breaking change",
+    "confidence": "100%"
+  },
+  
+  "testResults": {
+    "imageValidation": {
+      "result": "PASS",
+      "file": "/export/projects/homeinventory/out.png",
+      "format": "PNG 2550x4200, 1-bit grayscale, 251KB",
+      "readable": true,
+      "content": "Walmart receipt with visible text"
+    },
+    
+    "ocrInitialization": {
+      "result": "PASS",
+      "library": "tesseract.js v6.0.1",
+      "coreVersion": "Tesseract 5.1.0-284-g9c08",
+      "workerCreated": true
+    },
+    
+    "ocrExecution": {
+      "result": "PASS",
+      "textExtracted": true,
+      "linesDetected": 44,
+      "overallConfidence": 50,
+      "executionTime": "<1000ms"
+    },
+    
+    "resultParsing": {
+      "result": "FAIL",
+      "expectedProperty": "result.data.lines[]",
+      "actualProperty": "undefined",
+      "correctPath": "result.data.blocks[].paragraphs[].lines[]"
+    }
+  },
+  
+  "errorMessages": {
+    "visual": "Empty lines array returned",
+    "technical": "result.data.lines is undefined",
+    "cause": "v6 requires explicit { blocks: true } option"
+  },
+  
+  "solution": {
+    "type": "API_FIX",
+    "file": "src/features/receipt-processing/services/ocr.service.ts",
+    "method": "processImage()",
+    "changes": [
+      "Add { blocks: true } to worker.recognize() options",
+      "Extract lines from blocks[].paragraphs[].lines[] structure",
+      "Flatten nested arrays into single lines array"
+    ],
+    "verified": true,
+    "testCommand": "node test-out-png.js",
+    "expectedOutput": "44 lines extracted with confidence scores"
+  },
+  
+  "sampleData": {
+    "firstLine": {
+      "text": "Give us feedback @ survey.walmart.con Eo a . 0",
+      "confidence": 56,
+      "bbox": {"x0": 901, "y0": 207, "x1": 2545, "y1": 270}
+    }
+  },
+  
+  "documentation": [
+    "/export/projects/homeinventory/hive/testing/ocr-failure-analysis.json",
+    "/export/projects/homeinventory/hive/testing/ocr-solution-found.json",
+    "/export/projects/homeinventory/hive/testing/ocr-test-summary.md"
+  ],
+  
+  "nextSteps": [
+    "Coder agent: Implement fix in ocr.service.ts",
+    "Tester agent: Create unit tests for v6 API",
+    "Reviewer agent: Verify backward compatibility"
+  ]
+}

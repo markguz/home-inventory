@@ -1,0 +1,175 @@
+{
+  "diagnostic_metadata": {
+    "generated": "2025-10-31",
+    "agent": "code-analyzer",
+    "status": "CRITICAL",
+    "bug_type": "Response structure mismatch",
+    "failure_rate": "100%"
+  },
+  "critical_bug": {
+    "file": "/home-inventory/src/features/receipt-processing/services/ocr.service.ts",
+    "lines": "196-228",
+    "function": "processImage",
+    "issue": "Expects result.data.lines[] but tesseract returns result.data.text string",
+    "severity": "CRITICAL",
+    "code_snippet": "const resultLines = (resultData.lines || []) as unknown[];"
+  },
+  "working_reference": {
+    "file": "/home-inventory/test-receipts.js",
+    "lines": "293-318",
+    "function": "processImage",
+    "solution": "Uses result.data.text.split('\\n') correctly",
+    "success_rate": "100%"
+  },
+  "affected_components": [
+    {
+      "component": "OCR Service",
+      "file": "/home-inventory/src/features/receipt-processing/services/ocr.service.ts",
+      "lines": "1-298",
+      "status": "BROKEN",
+      "issues": [
+        "Lines 206-207: Incorrect response parsing",
+        "Lines 230-234: No empty result warning",
+        "Lines 196-198: No text extraction from result.data.text"
+      ]
+    },
+    {
+      "component": "API Route",
+      "file": "/home-inventory/src/app/api/receipts/process/route.ts",
+      "lines": "1-132",
+      "status": "DEPENDENT_FAILURE",
+      "issues": [
+        "Lines 82-84: Receives empty array from OCR service",
+        "Line 84: Logs incorrect line count",
+        "Lines 110-126: Returns success with 0 items (misleading)"
+      ]
+    },
+    {
+      "component": "Receipt Upload UI",
+      "file": "/home-inventory/src/features/receipt-processing/components/ReceiptUpload.tsx",
+      "lines": "1-178",
+      "status": "WORKING",
+      "issues": [
+        "No issues - correctly calls API and handles response"
+      ]
+    },
+    {
+      "component": "E2E Tests",
+      "file": "/home-inventory/tests/e2e/receipt-processing.spec.ts",
+      "lines": "1-637",
+      "status": "FAILING_DUE_TO_BUG",
+      "failing_tests": [
+        "should extract reasonable number of items (line 547)",
+        "should display receipt metadata (line 188)",
+        "should upload receipt via file input (line 110)",
+        "should allow editing item quantity (line 255)",
+        "should create items in inventory after confirmation (line 337)"
+      ]
+    }
+  ],
+  "configuration_issues": [
+    {
+      "issue": "Worker path resolution complexity",
+      "file": "/home-inventory/src/features/receipt-processing/services/ocr.service.ts",
+      "lines": "67-133",
+      "severity": "MEDIUM",
+      "description": "Three fallback methods with path manipulation, no validation"
+    },
+    {
+      "issue": "No OCR-specific environment variables",
+      "file": "/home-inventory/.env",
+      "severity": "LOW",
+      "description": "Could add TESSERACT_WORKER_PATH for explicit configuration"
+    }
+  ],
+  "error_handling_issues": [
+    {
+      "issue": "Silent empty array return",
+      "file": "/home-inventory/src/features/receipt-processing/services/ocr.service.ts",
+      "lines": "230-234",
+      "severity": "HIGH",
+      "impact": "Difficult debugging, no user feedback"
+    },
+    {
+      "issue": "No text extraction validation",
+      "file": "/home-inventory/src/features/receipt-processing/services/ocr.service.ts",
+      "lines": "196-198",
+      "severity": "HIGH",
+      "impact": "Fails silently when text is present but lines are not"
+    }
+  ],
+  "test_evidence": {
+    "working_test": {
+      "file": "/home-inventory/test-receipts.js",
+      "receipts_tested": 3,
+      "success_rate": "100%",
+      "items_extracted": 3,
+      "avg_confidence": "49%",
+      "duration": "2.46s"
+    },
+    "failing_test": {
+      "file": "/home-inventory/tests/e2e/receipt-processing.spec.ts",
+      "receipts_tested": 3,
+      "success_rate": "0%",
+      "items_extracted": 0,
+      "expected_items": "> 0",
+      "actual_behavior": "Empty review screen"
+    }
+  },
+  "dependencies": {
+    "tesseract.js": {
+      "version": "6.0.1",
+      "status": "CORRECT",
+      "response_format": {
+        "actual": "{ data: { text: string, confidence: number } }",
+        "expected_by_code": "{ data: { lines: [] } }",
+        "mismatch": true
+      }
+    },
+    "next": {
+      "version": "15.5.4",
+      "status": "WORKING",
+      "turbopack": true
+    }
+  },
+  "suggested_areas_to_investigate": [
+    {
+      "priority": "CRITICAL",
+      "area": "OCR text extraction logic",
+      "file": "/home-inventory/src/features/receipt-processing/services/ocr.service.ts",
+      "lines": "196-228",
+      "action": "Replace lines[] extraction with text.split('\\n')"
+    },
+    {
+      "priority": "HIGH",
+      "area": "API response logging",
+      "file": "/home-inventory/src/app/api/receipts/process/route.ts",
+      "lines": "82-90",
+      "action": "Add detailed OCR result logging"
+    },
+    {
+      "priority": "MEDIUM",
+      "area": "Error handling for empty results",
+      "file": "/home-inventory/src/features/receipt-processing/services/ocr.service.ts",
+      "lines": "230-244",
+      "action": "Add warnings and better error messages"
+    },
+    {
+      "priority": "LOW",
+      "area": "Worker initialization validation",
+      "file": "/home-inventory/src/features/receipt-processing/services/ocr.service.ts",
+      "lines": "135-141",
+      "action": "Add post-init test recognition"
+    }
+  ],
+  "fix_implementation": {
+    "file_to_modify": "/home-inventory/src/features/receipt-processing/services/ocr.service.ts",
+    "function": "processImage",
+    "current_code_lines": "196-228",
+    "estimated_lines_to_change": 20,
+    "complexity": "LOW",
+    "risk": "LOW",
+    "testing_required": "Full E2E suite",
+    "reference_implementation": "/home-inventory/test-receipts.js lines 293-318"
+  }
+}

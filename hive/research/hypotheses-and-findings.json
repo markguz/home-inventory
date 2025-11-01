@@ -1,0 +1,377 @@
+{
+  "timestamp": "2025-10-31T22:58:00Z",
+  "agent": "research-specialist",
+  "task": "ocr-failure-investigation",
+  "status": "completed",
+  "confidence": "100%",
+
+  "executive_summary": {
+    "root_cause": "Tesseract.js v6.0.1 API breaking change - result.data.lines is undefined",
+    "impact": "100% failure rate for receipt item extraction",
+    "solution": "Implement TSV parser to extract line-level data from v6 API",
+    "priority": "CRITICAL",
+    "estimated_fix_time": "2-4 hours"
+  },
+
+  "image_analysis": {
+    "file": "out.png",
+    "location": "/export/projects/homeinventory/out.png",
+    "properties": {
+      "format": "PNG",
+      "dimensions": "2550x4200 pixels",
+      "color_depth": "1-bit grayscale",
+      "resolution": "118.11 DPI",
+      "file_size_bytes": 257024,
+      "file_size_kb": 251,
+      "channels": "2.0 (Gray + Alpha)"
+    },
+    "quality_assessment": {
+      "is_valid": true,
+      "is_readable": true,
+      "has_good_contrast": true,
+      "proper_orientation": true,
+      "content_type": "Walmart receipt",
+      "has_barcode": true,
+      "has_qr_code": true,
+      "text_clarity": "good",
+      "issues": [
+        "1-bit depth may reduce OCR quality slightly",
+        "Slight texture/noise from scanning"
+      ]
+    },
+    "ocr_test_results": {
+      "status": "success",
+      "duration_seconds": 4,
+      "text_extracted": true,
+      "confidence": 50,
+      "text_sample": "Give us feedback @ survey.walmart.com Thank you! ID #7VRIDMIKCVAZ Walmart Neighborhood Market...",
+      "structured_data": "NONE - blocks and lines are null/undefined"
+    }
+  },
+
+  "ocr_library_analysis": {
+    "library": "tesseract.js",
+    "version": "6.0.1",
+    "installation": "via npm in package.json",
+    "integration_type": "server-side",
+    "location": "Next.js API route /api/receipts/process",
+    "service_pattern": "singleton in ocr.service.ts",
+    "worker_initialization": "createWorker('eng', 1, workerOptions)",
+    "preprocessing": {
+      "library": "sharp",
+      "techniques": [
+        "CLAHE (contrast enhancement)",
+        "Noise reduction (median filter)",
+        "Normalization (brightness/contrast)",
+        "Sharpening",
+        "Grayscale conversion",
+        "Resize to optimal dimensions"
+      ]
+    },
+    "expected_output": "result.data.lines array with text/confidence/bbox",
+    "actual_output": "result.data.lines is undefined, only result.data.text (string) available"
+  },
+
+  "hypotheses": [
+    {
+      "id": 1,
+      "hypothesis": "Tesseract.js v6 API Breaking Change",
+      "likelihood": "100%",
+      "status": "CONFIRMED - ROOT CAUSE",
+      "evidence": [
+        "Direct testing shows result.data.lines = undefined",
+        "Direct testing shows result.data.blocks = null",
+        "Direct testing shows result.data.layoutBlocks = null",
+        "Code expects v5 API structure (lines array)",
+        "Zero structured results across all test images",
+        "Only result.data.text (string) and result.data.confidence (number) available",
+        "Version check confirms tesseract.js@6.0.1 is installed"
+      ],
+      "impact": "CRITICAL - causes 100% failure",
+      "details": "Tesseract.js changed API between v5 and v6. The result.data.lines array no longer exists by default. Code written for v5 expects lines array, gets undefined, falls back to empty array, produces 0 results."
+    },
+    {
+      "id": 2,
+      "hypothesis": "Configuration or Initialization Error",
+      "likelihood": "0%",
+      "status": "RULED OUT",
+      "evidence": [
+        "Worker initializes successfully without errors",
+        "OCR processing completes successfully",
+        "Text extraction works (result.data.text populated)",
+        "Confidence scores generated (result.data.confidence = 50)",
+        "Worker path resolution succeeds",
+        "Language data loads correctly"
+      ],
+      "conclusion": "Configuration is correct - not the issue"
+    },
+    {
+      "id": 3,
+      "hypothesis": "Image Quality or Format Issue",
+      "likelihood": "5%",
+      "status": "RULED OUT",
+      "evidence": [
+        "out.png is high quality (2550x4200 resolution)",
+        "Text is clearly visible in the image",
+        "Multiple receipts with different quality levels all fail identically",
+        "Raw text extraction succeeds (proves OCR can read the image)",
+        "heb.jpg (58KB, clear) also returns 0 items",
+        "wholefoods.jpeg (5.5KB, lower quality) also returns 0 items"
+      ],
+      "minor_concern": "1-bit color depth might reduce quality slightly, but doesn't explain 100% failure",
+      "conclusion": "Image quality is sufficient - not the root cause"
+    },
+    {
+      "id": 4,
+      "hypothesis": "Preprocessing Pipeline Failure",
+      "likelihood": "0%",
+      "status": "RULED OUT",
+      "evidence": [
+        "Preprocessing completes without errors",
+        "Sharp library processes images successfully",
+        "Image validation passes",
+        "Metadata indicates successful processing",
+        "Even bypassing preprocessing (processImageRaw) fails identically"
+      ],
+      "conclusion": "Preprocessing works correctly - not the issue"
+    },
+    {
+      "id": 5,
+      "hypothesis": "Permission or File Access Issue",
+      "likelihood": "0%",
+      "status": "RULED OUT",
+      "evidence": [
+        "Files are readable (test scripts can access them)",
+        "Worker script found and loaded",
+        "No permission errors in logs",
+        "OCR completes successfully (proves file access works)"
+      ],
+      "conclusion": "File access is working - not the issue"
+    },
+    {
+      "id": 6,
+      "hypothesis": "Parser Service Bug",
+      "likelihood": "0%",
+      "status": "RULED OUT",
+      "evidence": [
+        "Parser never receives data to parse (input is empty array)",
+        "Parser works correctly when given test data",
+        "Issue occurs before parser is invoked (in OCR service)",
+        "Parser patterns are correct based on test outputs"
+      ],
+      "conclusion": "Parser is fine - problem is upstream in OCR service"
+    }
+  ],
+
+  "technical_details": {
+    "breaking_change": {
+      "tesseract_v5": {
+        "api_call": "const result = await worker.recognize(image)",
+        "response": "result.data.lines = [{ text, confidence, bbox }, ...]",
+        "structure": "Array of line objects with full metadata"
+      },
+      "tesseract_v6": {
+        "api_call": "const result = await worker.recognize(image)",
+        "response": "result.data.lines = undefined",
+        "available_data": [
+          "result.data.text (string) - full extracted text",
+          "result.data.confidence (number) - overall confidence",
+          "result.data.tsv (string) - tab-separated values with structure",
+          "result.data.hocr (object) - HTML with structure",
+          "result.data.blocks = null",
+          "result.data.layoutBlocks = null",
+          "result.data.words = undefined",
+          "result.data.paragraphs = undefined"
+        ]
+      },
+      "impact_on_code": {
+        "location": "ocr.service.ts lines 206-228",
+        "current_code": "const resultLines = (resultData.lines || []) as unknown[];",
+        "problem": "lines is undefined, so fallback returns []",
+        "result": "map() over empty array produces 0 results",
+        "cascading_effect": "Parser receives empty array, extracts 0 items"
+      }
+    },
+
+    "failure_chain": [
+      "1. OCR worker processes image successfully",
+      "2. Returns result with data.text populated but data.lines undefined",
+      "3. ocr.service.ts line 206: (resultData.lines || []) evaluates to []",
+      "4. lines.map() processes 0 elements",
+      "5. Returns { lines: [], ... }",
+      "6. Parser service receives empty array",
+      "7. Cannot extract items from empty array",
+      "8. Returns ParsedReceipt with items: []",
+      "9. API returns success: true but itemsExtracted: 0",
+      "10. Frontend shows empty review screen"
+    ],
+
+    "test_results_analysis": {
+      "heb_jpg": {
+        "file_size_kb": 57.4,
+        "ocr_duration_seconds": 2.12,
+        "ocr_confidence": 0.35,
+        "reported_lines": 44,
+        "actual_lines": 0,
+        "items_extracted": 0,
+        "expected_items": "~29 items visible in image",
+        "failure": "100% - 0 items from ~29 actual items"
+      },
+      "wholefoods_jpeg": {
+        "file_size_kb": 5.41,
+        "ocr_duration_seconds": 0.04,
+        "ocr_confidence": 0.39,
+        "reported_lines": 2,
+        "actual_lines": 0,
+        "items_extracted": 0,
+        "failure": "100%"
+      },
+      "untitled_jpeg": {
+        "file_size_kb": 7.04,
+        "ocr_duration_seconds": 0.02,
+        "ocr_confidence": 0.73,
+        "reported_lines": 1,
+        "actual_lines": 0,
+        "items_extracted": 0,
+        "failure": "100%"
+      }
+    }
+  },
+
+  "solutions": [
+    {
+      "priority": 1,
+      "name": "Parse TSV Output",
+      "recommendation": "RECOMMENDED",
+      "complexity": "low",
+      "risk": "low",
+      "effort_hours": "2-4",
+      "description": "Use result.data.tsv which contains structured line-level data in tab-separated format",
+      "advantages": [
+        "No version change needed",
+        "TSV includes confidence, bbox, and text",
+        "Structured data is available",
+        "Minimal code changes required",
+        "Maintains compatibility with v6"
+      ],
+      "implementation": {
+        "step_1": "Create parseTsvToLines() function",
+        "step_2": "Parse result.data.tsv to extract lines",
+        "step_3": "Convert TSV format to OcrLine[] format",
+        "step_4": "Replace lines 206-228 in ocr.service.ts",
+        "step_5": "Test with sample receipts"
+      }
+    },
+    {
+      "priority": 2,
+      "name": "Parse HOCR Output",
+      "recommendation": "ALTERNATIVE",
+      "complexity": "medium",
+      "risk": "low",
+      "effort_hours": "4-6",
+      "description": "Use result.data.hocr which contains HTML-formatted output with full structure",
+      "advantages": [
+        "Standard format",
+        "Full structure preserved",
+        "Bounding boxes included",
+        "Hierarchical data (blocks, paragraphs, lines, words)"
+      ],
+      "disadvantages": [
+        "Requires XML/HTML parsing",
+        "More complex implementation",
+        "Slightly slower parsing"
+      ]
+    },
+    {
+      "priority": 3,
+      "name": "Downgrade to Tesseract.js v5",
+      "recommendation": "NOT RECOMMENDED",
+      "complexity": "low",
+      "risk": "medium",
+      "effort_hours": "1-2",
+      "description": "Change package.json to use tesseract.js@^5.1.1",
+      "disadvantages": [
+        "Misses v6 performance improvements",
+        "Creates technical debt",
+        "Not future-proof",
+        "v5 may not be maintained long-term"
+      ]
+    },
+    {
+      "priority": 4,
+      "name": "Manual Text Parsing",
+      "recommendation": "AVOID",
+      "complexity": "high",
+      "risk": "high",
+      "effort_hours": "8-12",
+      "description": "Split result.data.text by newlines and estimate confidence",
+      "disadvantages": [
+        "No real confidence scores",
+        "No bounding boxes",
+        "Less accurate",
+        "Complex line grouping logic needed",
+        "Fragile and error-prone"
+      ]
+    }
+  ],
+
+  "next_steps": {
+    "immediate": [
+      "Implement TSV parser in ocr.service.ts (2-4 hours)",
+      "Create parseTsvToLines() utility function",
+      "Replace lines 206-228 with TSV parsing logic",
+      "Test with all sample receipts",
+      "Verify items are extracted correctly"
+    ],
+    "short_term": [
+      "Update unit tests to expect TSV parsing",
+      "Add error handling for malformed TSV",
+      "Update documentation about v6 API",
+      "Monitor extraction success rate"
+    ],
+    "long_term": [
+      "Consider HOCR for more robust parsing",
+      "Add confidence thresholds to reject low-quality OCR",
+      "Improve preprocessing for better accuracy",
+      "Add metrics tracking for OCR performance"
+    ]
+  },
+
+  "files_analyzed": [
+    "/export/projects/homeinventory/out.png",
+    "/export/projects/homeinventory/home-inventory/src/features/receipt-processing/services/ocr.service.ts",
+    "/export/projects/homeinventory/home-inventory/src/features/receipt-processing/services/parser.service.ts",
+    "/export/projects/homeinventory/home-inventory/src/features/receipt-processing/utils/image-preprocessor.ts",
+    "/export/projects/homeinventory/home-inventory/src/features/receipt-processing/utils/image-validator.ts",
+    "/export/projects/homeinventory/home-inventory/src/app/api/receipts/process/route.ts",
+    "/export/projects/homeinventory/home-inventory/package.json",
+    "/export/projects/homeinventory/hive/testing/receipt-validation-results.json",
+    "/export/projects/homeinventory/docs/research/receipt-ocr-summary.md"
+  ],
+
+  "test_scripts_created": [
+    "/export/projects/homeinventory/home-inventory/test-out-png.js",
+    "/export/projects/homeinventory/home-inventory/check-lines-issue.js",
+    "/export/projects/homeinventory/home-inventory/detailed-ocr-test.js",
+    "/export/projects/homeinventory/home-inventory/dump-structure.js"
+  ],
+
+  "collective_memory_stored": {
+    "namespace": "hive/research/",
+    "keys": [
+      "ocr-failure-root-cause-analysis.md - Comprehensive 4000+ word analysis",
+      "hypotheses-and-findings.json - Structured data for programmatic access",
+      "RESEARCH_COMPLETE.txt - Quick reference summary"
+    ]
+  },
+
+  "research_completion": {
+    "status": "COMPLETE",
+    "confidence_level": "100%",
+    "root_cause_identified": true,
+    "solution_proposed": true,
+    "ready_for_implementation": true,
+    "estimated_fix_time": "2-4 hours",
+    "agent_handoff": "Ready for Coder Agent to implement TSV parser fix"
+  }
+}

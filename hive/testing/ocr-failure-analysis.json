@@ -1,0 +1,115 @@
+{
+  "testDate": "2025-10-31T17:48:00Z",
+  "imageFile": "/export/projects/homeinventory/out.png",
+  "imageProperties": {
+    "format": "PNG",
+    "dimensions": "2550x4200",
+    "bitDepth": "1-bit grayscale",
+    "size": "251KB",
+    "readable": true,
+    "content": "Walmart receipt with items and prices"
+  },
+  "ocrImplementation": {
+    "library": "tesseract.js",
+    "version": "6.0.1",
+    "tesseractCoreVersion": "5.1.0-284-g9c08",
+    "binaryInstalled": false,
+    "notes": "Pure JavaScript implementation, no native binary"
+  },
+  "failureAnalysis": {
+    "rootCause": "API_MISMATCH",
+    "description": "ocr.service.ts expects result.data.lines[] but tesseract.js v6 does not provide this property",
+    "evidence": {
+      "expectedProperty": "result.data.lines",
+      "actuallyExists": false,
+      "actualValue": "undefined",
+      "availableProperties": [
+        "text",
+        "hocr",
+        "tsv",
+        "box",
+        "unlv",
+        "osd",
+        "pdf",
+        "imageColor",
+        "imageGrey",
+        "imageBinary",
+        "confidence",
+        "blocks",
+        "layoutBlocks",
+        "psm",
+        "oem",
+        "version",
+        "debug",
+        "rotateRadians"
+      ]
+    }
+  },
+  "testResults": {
+    "imageLoading": {
+      "status": "PASS",
+      "message": "Image loaded successfully, 251KB buffer created"
+    },
+    "ocrInitialization": {
+      "status": "PASS",
+      "message": "Worker created and initialized successfully"
+    },
+    "ocrInvocation": {
+      "status": "PASS",
+      "message": "OCR recognition completed successfully",
+      "confidence": 50,
+      "textExtracted": true
+    },
+    "resultParsing": {
+      "status": "FAIL",
+      "message": "Code expects result.data.lines[] but property does not exist in tesseract.js v6",
+      "expectedStructure": "result.data.lines[] with {text, confidence, bbox}",
+      "actualStructure": "result.data.blocks (object, not array) and result.data.text (string)"
+    }
+  },
+  "codeIssues": [
+    {
+      "file": "/export/projects/homeinventory/home-inventory/src/features/receipt-processing/services/ocr.service.ts",
+      "line": 206,
+      "issue": "Accesses result.data.lines which doesn't exist in tesseract.js v6",
+      "code": "const resultLines = (resultData.lines || []) as unknown[];",
+      "severity": "CRITICAL"
+    },
+    {
+      "file": "/export/projects/homeinventory/home-inventory/src/features/receipt-processing/services/ocr.service.ts",
+      "line": 214,
+      "issue": "Attempts to map over non-existent lines array",
+      "code": "const lines: OcrLine[] = resultLines.map((line) => {...});",
+      "severity": "CRITICAL"
+    }
+  ],
+  "recommendations": [
+    {
+      "priority": "HIGH",
+      "action": "Update ocr.service.ts to use correct tesseract.js v6 API",
+      "details": "Need to extract lines from result.data.text or parse result.data.hocr/tsv formats"
+    },
+    {
+      "priority": "HIGH",
+      "action": "Investigate result.data.blocks structure",
+      "details": "blocks property exists but type is 'object' not array - needs investigation"
+    },
+    {
+      "priority": "MEDIUM",
+      "action": "Add version compatibility layer",
+      "details": "Support both tesseract.js v5 (has lines) and v6 (different structure)"
+    },
+    {
+      "priority": "LOW",
+      "action": "Improve image preprocessing",
+      "details": "Current confidence is 50% - image quality improvements may help"
+    }
+  ],
+  "nextSteps": [
+    "Investigate result.data.blocks object structure",
+    "Determine how to extract line-by-line data from v6 API",
+    "Update OcrService.processImage() method to work with v6",
+    "Add unit tests for both API versions",
+    "Test with out.png after fixes"
+  ]
+}

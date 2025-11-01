@@ -1,0 +1,33 @@
+OCR FAILURE ROOT CAUSE - RESEARCH COMPLETE
+==========================================
+
+Status: CRITICAL BUG IDENTIFIED
+Date: 2025-10-31
+Agent: Research Specialist
+
+ROOT CAUSE:
+-----------
+Tesseract.js v6.0.1 API breaking change
+- result.data.lines is undefined (not an array)
+- result.data.blocks is null
+- Code expects v5 API structure
+
+IMPACT:
+-------
+100% failure rate for receipt item extraction
+All test receipts return 0 items despite successful OCR
+
+SOLUTION:
+---------
+Implement TSV parser to extract line-level data
+Estimated effort: 2-4 hours
+Priority: CRITICAL
+
+DETAILED REPORT:
+----------------
+See: hive/research/ocr-failure-root-cause-analysis.md
+
+READY FOR:
+----------
+Coder Agent to implement TSV parser fix
+

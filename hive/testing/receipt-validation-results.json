@@ -6,17 +6,17 @@
     "averageOcrConfidence": "49.00%",
     "averageParserConfidence": "29.10%",
     "totalItemsExtracted": 3,
-    "testDuration": "2.37s",
-    "timestamp": "2025-10-16T03:12:26.837Z"
+    "testDuration": "2.46s",
+    "timestamp": "2025-10-31T22:55:46.157Z"
   },
   "results": [
     {
       "receiptName": "heb.jpg",
-      "timestamp": "2025-10-16T03:12:26.774Z",
+      "timestamp": "2025-10-31T22:55:46.095Z",
       "success": true,
       "ocrConfidence": 0.34999999999999976,
       "ocrLines": 44,
-      "ocrDuration": 2.08,
+      "ocrDuration": 2.12,
       "parsedReceipt": {
         "items": [
           {
@@ -59,11 +59,11 @@
     },
     {
       "receiptName": "Untitled.jpeg",
-      "timestamp": "2025-10-16T03:12:26.800Z",
+      "timestamp": "2025-10-31T22:55:46.117Z",
       "success": true,
       "ocrConfidence": 0.73,
       "ocrLines": 1,
-      "ocrDuration": 0.03,
+      "ocrDuration": 0.02,
       "parsedReceipt": {
         "items": [],
         "total": null,
@@ -78,7 +78,7 @@
     },
     {
       "receiptName": "wholefoods.jpeg",
-      "timestamp": "2025-10-16T03:12:26.836Z",
+      "timestamp": "2025-10-31T22:55:46.156Z",
       "success": true,
       "ocrConfidence": 0.39,
       "ocrLines": 2,

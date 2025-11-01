@@ -21,11 +21,11 @@ export interface PreprocessingConfig {
  * Default preprocessing configuration
  */
 export const DEFAULT_PREPROCESSING_CONFIG: PreprocessingConfig = {
-  enableCLAHE: true,
-  enableNoiseReduction: true,
+  enableCLAHE: false, // Disabled - causes over-processing
+  enableNoiseReduction: false, // Disabled - damages text clarity
   enableDeskewing: false, // Computationally expensive
-  enableNormalization: true,
-  sharpen: true,
+  enableNormalization: true, // Re-enabled for brightness adjustment on overexposed images
+  sharpen: false, // Disabled - causes artifacts
 };
 
 /**
@@ -159,6 +159,19 @@ export async function preprocessImage(
     const originalMetadata = await sharp(imageBuffer).metadata();
     let processedBuffer = imageBuffer;
 
+    // Step 0: Optimize for high-resolution receipts
+    // High resolution (2000+ width) receipt images benefit from 0.5x downscaling
+    // This improves OCR confidence by optimizing text size for Tesseract
+    if ((originalMetadata.width || 0) > 2000) {
+      console.log('[OCR Preprocess] Downscaling high-resolution image (0.5x)');
+      const targetWidth = Math.round((originalMetadata.width || 2550) * 0.5);
+      const targetHeight = Math.round((originalMetadata.height || 4200) * 0.5);
+      processedBuffer = await sharp(processedBuffer)
+        .resize(targetWidth, targetHeight, { fit: 'fill' })
+        .toBuffer();
+      applied.push('downscale-hi-res');
+    }
+
     // Step 1: Deskewing (if enabled)
     if (cfg.enableDeskewing) {
       processedBuffer = await deskewImage(processedBuffer);
@@ -169,6 +182,7 @@ export async function preprocessImage(
     let pipeline = sharp(processedBuffer);
 
     // Convert to grayscale for better OCR (text is usually monochrome)
+    // Grayscale is lightweight and improves text clarity
     pipeline = pipeline.grayscale();
     applied.push('grayscale');
 

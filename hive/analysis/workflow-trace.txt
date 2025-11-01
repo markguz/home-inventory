@@ -1,0 +1,213 @@
+OCR SCANNING WORKFLOW TRACE
+════════════════════════════════════════════════════
+
+ENTRY POINT: User Upload
+─────────────────────────
+File: /home-inventory/src/features/receipt-processing/components/ReceiptUpload.tsx
+Lines: 48-76
+Function: processReceipt()
+Status: WORKING
+Flow: Creates FormData, POSTs to /api/receipts/process
+
+   ↓ HTTP POST
+
+API ENDPOINT: Receipt Processing
+─────────────────────────────────
+File: /home-inventory/src/app/api/receipts/process/route.ts
+Lines: 26-131
+Function: POST()
+Status: WORKING (but gets bad data)
+Flow:
+   1. Authenticates user (line 31)
+   2. Validates file (lines 41-70)
+   3. Converts to buffer (line 74)
+   4. Calls OCR service (line 79-83)
+   5. Calls parser (line 87-88)
+   6. Returns result (line 96-109)
+
+   ↓ getOcrService().processImage()
+
+OCR SERVICE: Image Processing
+─────────────────────────────
+File: /home-inventory/src/features/receipt-processing/services/ocr.service.ts
+Lines: 149-245
+Function: processImage()
+Status: BROKEN HERE ← THE BUG
+Flow:
+   1. Validates image (line 169)
+   2. Preprocesses image (lines 174-194)
+   3. Calls tesseract worker (line 197)
+   4. FAILS: Extracts lines from result (lines 206-207)
+
+   BUG LOCATION:
+   Lines 206-207:
+   const resultData = ((result as TesseractResult).data || result) as TesseractResult;
+   const resultLines = (resultData.lines || []) as unknown[];
+                                    ↑
+                               UNDEFINED!
+
+   What happens:
+   - result.data.text exists (correct)
+   - result.data.lines does NOT exist (bug)
+   - Code returns empty array []
+   - No error thrown
+   - No warning logged
+
+   ↓ returns { lines: [], ... }
+
+PARSER SERVICE: Item Extraction
+────────────────────────────────
+File: /home-inventory/src/features/receipt-processing/services/parser.service.ts
+Status: WORKING
+Flow: Receives empty array → returns 0 items
+
+   ↓ returns { items: [], ... }
+
+API RESPONSE: Success with 0 items
+───────────────────────────────────
+File: /home-inventory/src/app/api/receipts/process/route.ts
+Lines: 96-109
+Status: WORKING (technically correct)
+Returns:
+   {
+     success: true,
+     data: {
+       items: [],
+       ocrConfidence: 0,
+       metadata: {
+         linesProcessed: 0,
+         itemsExtracted: 0
+       }
+     }
+   }
+
+   ↓ HTTP 200 Response
+
+FRONTEND: Receipt Review
+─────────────────────────
+File: /home-inventory/src/features/receipt-processing/components/ReceiptItemsReview.tsx
+Status: WORKING
+Flow: Displays "No items to review" (correct for empty data)
+
+
+COMPARISON: WORKING vs BROKEN
+════════════════════════════════════════════════════
+
+WORKING IMPLEMENTATION (test-receipts.js)
+──────────────────────────────────────────
+File: /home-inventory/test-receipts.js
+Lines: 293-318
+Code:
+   const result = await this.worker.recognize(imageBuffer);
+
+   if (!result.data || !result.data.text) {
+     return [];
+   }
+
+   const rawLines = result.data.text.split('\n');
+   const overallConfidence = result.data.confidence / 100;
+
+   const lines = rawLines.map((text, index) => ({
+     text: text.trim(),
+     confidence: overallConfidence,
+     bbox: undefined,
+   })).filter((line) => line.text.length > 0);
+
+   return lines;
+
+Result: 44 lines extracted, 3 items found
+
+
+BROKEN IMPLEMENTATION (ocr.service.ts)
+───────────────────────────────────────
+File: /home-inventory/src/features/receipt-processing/services/ocr.service.ts
+Lines: 196-228
+Code:
+   const result = await this.worker!.recognize(processedBuffer);
+
+   const resultData = ((result as TesseractResult).data || result);
+   const resultLines = (resultData.lines || []) as unknown[];
+
+   const lines: OcrLine[] = resultLines.map((line) => {
+     // Never executes - array is empty
+   });
+
+   return {
+     lines: lines.filter((line) => line.text.length > 0),
+   };
+
+Result: 0 lines extracted, 0 items found
+
+
+FIX IMPLEMENTATION
+════════════════════════════════════════════════════
+
+File: /home-inventory/src/features/receipt-processing/services/ocr.service.ts
+Function: processImage()
+Lines: 196-228
+
+Replace with:
+      const result = await this.worker!.recognize(processedBuffer);
+      processingApplied.push('ocr');
+
+      const text = result.data?.text || '';
+      const overallConfidence = (result.data?.confidence || 0) / 100;
+
+      if (!text) {
+        console.warn('[OCR] No text extracted from image');
+        return { lines: [], processingApplied, metadata };
+      }
+
+      const rawLines = text.split('\n');
+      const lines: OcrLine[] = rawLines
+        .map((lineText) => ({
+          text: lineText.trim(),
+          confidence: overallConfidence,
+          bbox: undefined,
+        }))
+        .filter((line) => line.text.length > 0);
+
+      console.log(`[OCR] Extracted ${lines.length} lines`);
+
+      return { lines, processingApplied, metadata };
+
+
+TESTING CHECKLIST
+════════════════════════════════════════════════════
+
+1. Standalone Test (test-receipts.js)
+   Command: node test-receipts.js
+   Expected: 3 receipts, 3 items found
+   Status: PASSING
+
+2. Dev Server Test
+   Command: npm run dev
+   Action: Upload receipt via browser
+   Expected: Items display in review UI
+   Status: NEEDS TESTING AFTER FIX
+
+3. E2E Test Suite
+   Command: npx playwright test receipt-processing
+   Expected: 8 test groups, all pass
+   Status: NEEDS TESTING AFTER FIX
+
+4. Production Build
+   Command: npm run build && npm start
+   Expected: No build errors, receipts work
+   Status: NEEDS TESTING AFTER FIX
+
+
+MEMORY STORAGE
+════════════════════════════════════════════════════
+
+Namespace: hive/analysis/
+
+Files Stored:
+✓ ocr-diagnostic-report.md    - Full technical analysis
+✓ code-locations.json          - Structured diagnostic data
+✓ executive-summary.md         - High-level overview
+✓ workflow-trace.txt           - This trace document
+
+Evidence Files:
+✓ /hive/testing/receipt-validation-results.json
+✓ /hive/testing/receipt-validation-results.csv

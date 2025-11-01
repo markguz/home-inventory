@@ -1,0 +1,111 @@
+{
+  "timestamp": "2025-10-31T17:48:00Z",
+  "status": "SOLUTION_FOUND",
+  "testImage": "/export/projects/homeinventory/out.png",
+
+  "problemIdentified": {
+    "issue": "ocr.service.ts expects result.data.lines[] but tesseract.js v6 changed API",
+    "severity": "CRITICAL",
+    "impact": "All OCR processing fails - returns empty lines array"
+  },
+
+  "rootCause": {
+    "description": "tesseract.js v6 disabled all output formats by default",
+    "documentation": "Version 6 changes: All output formats other than text are disabled by default",
+    "fix": "Must explicitly enable blocks format: worker.recognize(image, {}, { blocks: true })"
+  },
+
+  "correctApiStructure": {
+    "path": "result.data.blocks[].paragraphs[].lines[]",
+    "structure": {
+      "blocks": "Array of text blocks",
+      "paragraphs": "Array of paragraphs within each block",
+      "lines": "Array of lines within each paragraph",
+      "lineObject": {
+        "text": "string - the line text",
+        "confidence": "number - 0-100 confidence score",
+        "bbox": "object - {x0, y0, x1, y1} bounding box",
+        "baseline": "object - baseline coordinates",
+        "rowAttributes": "object - height, descenders, ascenders",
+        "words": "array - word-level breakdown with symbols"
+      }
+    }
+  },
+
+  "testResults": {
+    "imageLoading": {
+      "status": "PASS",
+      "details": "PNG 2550x4200, 251KB loaded successfully"
+    },
+    "ocrInitialization": {
+      "status": "PASS",
+      "details": "Worker initialized with tesseract.js v6.0.1"
+    },
+    "ocrRecognition": {
+      "status": "PASS",
+      "details": "Recognition completed, 44 lines detected, overall confidence 50%"
+    },
+    "dataExtraction": {
+      "status": "PASS_WITH_FIX",
+      "before": "result.data.lines = undefined",
+      "after": "result.data.blocks[0].paragraphs[].lines[] = 44 lines",
+      "fix": "Added { blocks: true } option to recognize()"
+    }
+  },
+
+  "solutionImplementation": {
+    "file": "src/features/receipt-processing/services/ocr.service.ts",
+    "method": "processImage()",
+    "changes": [
+      {
+        "line": 197,
+        "change": "Add options parameter to worker.recognize()",
+        "before": "const result = await this.worker!.recognize(processedBuffer);",
+        "after": "const result = await this.worker!.recognize(processedBuffer, {}, { blocks: true });"
+      },
+      {
+        "line": 206,
+        "change": "Extract lines from blocks/paragraphs structure",
+        "before": "const resultLines = (resultData.lines || []) as unknown[];",
+        "after": "// Extract lines from blocks -> paragraphs -> lines structure\nconst resultLines: unknown[] = [];\nif (Array.isArray(resultData.blocks)) {\n  resultData.blocks.forEach((block: any) => {\n    if (Array.isArray(block.paragraphs)) {\n      block.paragraphs.forEach((para: any) => {\n        if (Array.isArray(para.lines)) {\n          resultLines.push(...para.lines);\n        }\n      });\n    }\n  });\n}"
+      }
+    ]
+  },
+
+  "sampleOutput": {
+    "firstLine": {
+      "text": "Give us feedback @ survey.walmart.con Eo a . 0",
+      "confidence": 56,
+      "bbox": {
+        "x0": 901,
+        "y0": 207,
+        "x1": 2545,
+        "y1": 270
+      },
+      "words": [
+        {"text": "Give", "confidence": 96},
+        {"text": "us", "confidence": 96},
+        {"text": "feedback", "confidence": 92},
+        {"text": "@", "confidence": 91},
+        {"text": "survey.walmart.con", "confidence": 80}
+      ]
+    },
+    "totalLinesExtracted": 44,
+    "overallConfidence": 50
+  },
+
+  "verification": {
+    "commandToTest": "cd /export/projects/homeinventory/home-inventory && node -e \"const { createWorker } = require('tesseract.js'); (async () => { const worker = await createWorker('eng'); const result = await worker.recognize('/export/projects/homeinventory/out.png', {}, { blocks: true }); let lines = 0; result.data.blocks.forEach(b => b.paragraphs.forEach(p => lines += p.lines?.length || 0)); console.log('Lines:', lines); await worker.terminate(); })();\"",
+    "expectedOutput": "Lines: 44",
+    "testPassed": true
+  },
+
+  "nextActions": [
+    "Update ocr.service.ts with correct API usage",
+    "Add { blocks: true } option to recognize() call",
+    "Flatten blocks -> paragraphs -> lines structure",
+    "Test with out.png to verify fix",
+    "Add unit tests for v6 API structure",
+    "Update type definitions if needed"
+  ]
+}

@@ -1,0 +1,242 @@
+{
+  "timestamp": "2025-11-01T00:01:08.156Z",
+  "summary": {
+    "ocr": {
+      "linesExtracted": 61,
+      "avgConfidence": 0.30999999999999994,
+      "minConfidence": 0.31,
+      "maxConfidence": 0.31,
+      "processingTime": 5750
+    },
+    "parsing": {
+      "itemsParsed": 0,
+      "storeDetected": false,
+      "dateDetected": false,
+      "totalDetected": true,
+      "processingTime": 4
+    },
+    "filtering": {
+      "potentialItemsFiltered": 5,
+      "filteredLines": [
+        "Gn OF HSN GSIoOIZOI0 £1.00 N pi + 3",
+        "STIR FRY CHI 070802404070 F 1.08 N Faas .",
+        "SUBTOTAL 110.20 Zid iE: i",
+        "owiGE OE 0.00 race i",
+        "113.16 TOTAL PURGHASE fo { 1"
+      ]
+    }
+  },
+  "ocrResult": {
+    "lineCount": 61,
+    "lines": [
+      {
+        "text": "pe E",
+        "confidence": 0.31
+      },
+      {
+        "text": "fu i i",
+        "confidence": 0.31
+      },
+      {
+        "text": "Give us feedback survey. walnart.con a & E",
+        "confidence": 0.31
+      },
+      {
+        "text": "Th So 5 iC ge 7 i",
+        "confidence": 0.31
+      },
+      {
+        "text": "ste Taal 1 1",
+        "confidence": 0.31
+      },
+      {
+        "text": "Walmart >; a 2 b",
+        "confidence": 0.31
+      },
+      {
+        "text": "Yeigpborhood Narket Sie vg",
+        "confidence": 0.31
+      },
+      {
+        "text": "Poni ty) eh 4",
+        "confidence": 0.31
+      },
+      {
+        "text": "20903 HIGLAD KOLLS 1% ie . i",
+        "confidence": 0.31
+      },
+      {
+        "text": "KATY TX 77480 di",
+        "confidence": 0.31
+      },
+      {
+        "text": "STH cases 094 005008 164 09 Thy ozoz1 [EAL wn 1",
+        "confidence": 0.31
+      },
+      {
+        "text": "§ 116K S00 22 IREEEE 1",
+        "confidence": 0.31
+      },
+      {
+        "text": "Tow 078 35512501 2886 3079 7 i 2 1",
+        "confidence": 0.31
+      },
+      {
+        "text": "Ream",
+        "confidence": 0.31
+      },
+      {
+        "text": "1 fee 1",
+        "confidence": 0.31
+      },
+      {
+        "text": "WE ee |",
+        "confidence": 0.31
+      },
+      {
+        "text": "orto sn oresencr son fal 1",
+        "confidence": 0.31
+      },
+      {
+        "text": "Gv 0 6 oreraseeon 16s N EN i i",
+        "confidence": 0.31
+      },
+      {
+        "text": "GV 10 BRD O7REN0 1g N eae E",
+        "confidence": 0.31
+      },
+      {
+        "text": "ERC rE RE 5",
+        "confidence": 0.31
+      },
+      {
+        "text": "DELL Pop cin oTenazzzse) 2s MEE 2 1",
+        "confidence": 0.31
+      },
+      {
+        "text": "PRUNE opeeosoator sash EGG",
+        "confidence": 0.31
+      },
+      {
+        "text": "oR OF ow 0s10000izot0 F Toon [EST L 4",
+        "confidence": 0.31
+      },
+      {
+        "text": "Gn OF HSN GSIoOIZOI0 £1.00 N pi + 3",
+        "confidence": 0.31
+      },
+      {
+        "text": "OS 1 oer omeoganioio F Loan MEL io 4",
+        "confidence": 0.31
+      },
+      {
+        "text": "STIR FRY CHI 070802404070 F 1.08 N Faas .",
+        "confidence": 0.31
+      },
+      {
+        "text": "Erte ICH E",
+        "confidence": 0.31
+      },
+      {
+        "text": "os oie omecaaiane Loon [Eg DE 1",
+        "confidence": 0.31
+      },
+      {
+        "text": "£0 TEIN fz somistonpor nw gon [EEL id 1",
+        "confidence": 0.31
+      },
+      {
+        "text": "Brew 12 sooner soon WELLL E",
+        "confidence": 0.31
+      },
+      {
+        "text": "fone oma i 0s BE bi",
+        "confidence": 0.31
+      },
+      {
+        "text": "STO BITER Oram for N [EL 2 1",
+        "confidence": 0.31
+      },
+      {
+        "text": "Tis recom ozmooosoizo sao WEEE i 4",
+        "confidence": 0.31
+      },
+      {
+        "text": "HS porcomy ooToo0e0r20 gag nL o",
+        "confidence": 0.31
+      },
+      {
+        "text": "TVS POPCORN 20700120 F cdo [EAL 1",
+        "confidence": 0.31
+      },
+      {
+        "text": "10 RI 31. 04000055880 F  1q.seX WE : |",
+        "confidence": 0.31
+      },
+      {
+        "text": "WO SR FS ooanongomeo figs x MEAL | i",
+        "confidence": 0.31
+      },
+      {
+        "text": "wo soniien aon BERL",
+        "confidence": 0.31
+      },
+      {
+        "text": "SUBTOTAL 110.20 Zid iE: i",
+        "confidence": 0.31
+      },
+      {
+        "text": "WBF 29% i 2",
+        "confidence": 0.31
+      },
+      {
+        "text": "TOW 1130 bei i",
+        "confidence": 0.31
+      },
+      {
+        "text": "uses sie WSR E",
+        "confidence": 0.31
+      },
+      {
+        "text": "owiGE OE 0.00 race i",
+        "confidence": 0.31
+      },
+      {
+        "text": "CHASE VISk: 5535 1 1 RAOISSZD a 1",
+        "confidence": 0.31
+      },
+      {
+        "text": "113.16 TOTAL PURGHASE fo { 1",
+        "confidence": 0.31
+      },
+      {
+        "text": "REE ¥ S010? ia 4 E",
+        "confidence": 0.31
+      },
+      {
+        "text": "Thad 10 Seso0asasseiszs RTE",
+        "confidence": 0.31
+      },
+      {
+        "text": "VALIOATION - TLM aa jis 3",
+        "confidence": 0.31
+      },
+      {
+        "text": "EATHENT SERUICE © € oo",
+        "confidence": 0.31
+      },
+      {
+        "text": "HID #0000000031010 Eo 4",
+        "confidence": 0.31
+      }
+    ]
+  },
+  "parseResult": {
+    "itemCount": 0,
+    "items": [],
+    "metadata": {
+      "date": null,
+      "total": 110.2
+    }
+  }
+}

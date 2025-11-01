@@ -1,0 +1,32 @@
+{
+  "timestamp": "2025-10-31T18:58:00Z",
+  "issue": "OCR Quality Problem - Root Cause Identified",
+  "findings": {
+    "ocr_extraction": {
+      "lines_extracted": 61,
+      "overall_confidence": "31%",
+      "problem": "Image is overexposed (brightness: 238.54) causing very poor OCR quality",
+      "sample_lines": [
+        "pe E",
+        "fu i i", 
+        "Give us feedback survey. walnart.con a & E",
+        "Th So 5 iC ge 7 i"
+      ]
+    },
+    "parsing_result": {
+      "items_parsed": 0,
+      "total_detected": "110.20",
+      "store_detected": false,
+      "date_detected": false,
+      "problem": "Parser cannot extract items from garbled OCR text"
+    },
+    "root_cause": "Image preprocessing is NOT working correctly. The image is overexposed but the preprocessing is only applying downscaling, not brightness/contrast adjustment.",
+    "evidence": [
+      "OCR confidence is only 31% (should be 70-90% for good quality)",
+      "Text is completely garbled: 'Walmart' -> 'Yeigpborhood Narket'",
+      "Only downscaling was applied: '[OCR Preprocess] Downscaling high-resolution image (0.5x)'",
+      "No brightness/contrast adjustment despite warning: 'Image is overexposed (brightness: 238.54)'"
+    ]
+  },
+  "solution": "Fix image preprocessor to handle overexposed images before OCR"
+}

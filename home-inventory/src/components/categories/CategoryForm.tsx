@@ -1,5 +1,6 @@
 'use client'
 
+import { useEffect } from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { categorySchema, type CategoryFormData } from '@/lib/validations'
@@ -40,16 +41,41 @@ export function CategoryForm({ open, onOpenChange, category, mode }: CategoryFor
   const form = useForm<CategoryFormData>({
     resolver: zodResolver(categorySchema),
     defaultValues: {
-      name: category?.name || '',
-      description: category?.description || '',
-      icon: category?.icon || '',
-      color: category?.color || '',
-      minQuantity: category?.minQuantity || undefined,
+      name: '',
+      description: '',
+      icon: '',
+      color: '',
+      minQuantity: undefined,
     },
   })
 
+  // Reset form when category changes or dialog opens/closes
+  useEffect(() => {
+    if (open && category && mode === 'edit') {
+      console.log('[CategoryForm] Editing category:', category)
+      form.reset({
+        name: category.name || '',
+        description: category.description || '',
+        icon: category.icon || '',
+        color: category.color || '',
+        minQuantity: category.minQuantity || undefined,
+      })
+    } else if (open && mode === 'create') {
+      console.log('[CategoryForm] Creating new category')
+      form.reset({
+        name: '',
+        description: '',
+        icon: '',
+        color: '',
+        minQuantity: undefined,
+      })
+    }
+  }, [open, category, mode, form])
+
   const onSubmit = async (data: CategoryFormData) => {
     try {
+      console.log('[CategoryForm] Submitting:', { mode, categoryId: category?.id, data })
+
       const url = mode === 'create'
         ? '/api/categories'
         : `/api/categories/${category?.id}`
@@ -60,12 +86,26 @@ export function CategoryForm({ open, onOpenChange, category, mode }: CategoryFor
         method,
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(data),
+        credentials: 'include', // Ensure session cookies are sent
       })
 
       const result = await response.json()
+      console.log('[CategoryForm] Response:', { status: response.status, result })
 
-      if (!response.ok) {
-        throw new Error(result.error || 'Failed to save category')
+      // Check API response structure
+      if (!response.ok || !result.success) {
+        // Extract error message from API response
+        const errorMessage = result.error || `Failed to ${mode} category`
+
+        // If validation errors exist, show detailed messages
+        if (result.details && Array.isArray(result.details)) {
+          const validationErrors = result.details
+            .map((issue: { path: string[]; message: string }) => `${issue.path.join('.')}: ${issue.message}`)
+            .join(', ')
+          throw new Error(`Validation failed: ${validationErrors}`)
+        }
+
+        throw new Error(errorMessage)
       }
 
       toast.success(
@@ -74,16 +114,31 @@ export function CategoryForm({ open, onOpenChange, category, mode }: CategoryFor
           : 'Category updated successfully'
       )
 
-      form.reset()
+      // Close dialog first
       onOpenChange(false)
+
+      // Reset form after closing
+      form.reset()
+
+      // Refresh to show updated data
       router.refresh()
     } catch (error) {
-      toast.error(error instanceof Error ? error.message : 'An error occurred')
+      console.error('[CategoryForm] Error:', error)
+      toast.error(error instanceof Error ? error.message : 'An unexpected error occurred')
     }
   }
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
+    <Dialog
+      open={open}
+      onOpenChange={(newOpen) => {
+        // Prevent closing during submission
+        if (!newOpen && form.formState.isSubmitting) {
+          return
+        }
+        onOpenChange(newOpen)
+      }}
+    >
       <DialogContent className="sm:max-w-[500px]">
         <DialogHeader>
           <DialogTitle>

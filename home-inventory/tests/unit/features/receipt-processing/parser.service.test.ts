@@ -105,7 +105,7 @@ describe('ReceiptParserService', () => {
     it('should filter out low confidence items', () => {
       const ocrLines: OcrLine[] = [
         { text: 'Good Item 5.99', confidence: 0.85 },
-        { text: 'Bad Item 2.99', confidence: 0.50 }, // Below threshold
+        { text: 'Bad Item 2.99', confidence: 0.30 }, // Below threshold of 0.50
       ];
 
       const result = parserService.parseReceipt(ocrLines);

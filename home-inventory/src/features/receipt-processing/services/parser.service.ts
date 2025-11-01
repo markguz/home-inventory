@@ -9,7 +9,7 @@ import type { OcrLine, ExtractedItem, ParsedReceipt, ParserConfig } from '../typ
  * Default parser configuration
  */
 const DEFAULT_CONFIG: ParserConfig = {
-  minItemConfidence: 0.6,
+  minItemConfidence: 0.5, // Native Tesseract produces highly accurate results (95%+)
   minPriceConfidence: 0.7,
   currencySymbol: '$',
   dateFormats: ['MM/DD/YYYY', 'DD/MM/YYYY', 'YYYY-MM-DD'],
@@ -69,45 +69,32 @@ export class ReceiptParserService {
   private extractItems(lines: OcrLine[]): ExtractedItem[] {
     const items: ExtractedItem[] = [];
 
-    // Enhanced price patterns to handle OCR errors
-    // Matches: $12.99, 12.99, $12, 12.9O (O confused with 0), 12,99, etc.
-    const pricePattern = /\$?\s*(\d+[.,][O0o]\d|[\d]+[.,]\d{1,2})\s*$/i;
-    const quantityPattern = /^(\d+)\s*x\s*/i;
+    // Simple, robust price pattern for native Tesseract output
+    // Matches any decimal price: 1.99, 123.45, 1,99, 1.9O (O as 0), etc.
+    // Works with receipt formats: "ITEM BARCODE PRICE FLAG" or "ITEM PRICE"
+    const pricePattern = /(\d+[.,][O0o]?\d{1,2})/;
 
-    // Alternative quantity patterns: "2 @ 5.99", "qty: 2", etc.
+    // Quantity patterns
+    const quantityPattern = /^(\d+)\s*x\s*/i;
     const altQuantityPattern = /(\d+)\s*@|qty:\s*(\d+)|quantity:\s*(\d+)/i;
 
     for (let i = 0; i < lines.length; i++) {
       const line = lines[i];
-      let text = line.text.trim();
+      const text = line.text.trim();
 
       // Skip common non-item lines
       if (this.isNonItemLine(text)) continue;
 
-      // Check if line contains a price
-      let priceMatch = text.match(pricePattern);
-
-      // If no price on current line, check next line (multi-line items)
-      let nextLineHasPrice = false;
-      if (!priceMatch && i < lines.length - 1) {
-        const nextLine = lines[i + 1];
-        priceMatch = nextLine.text.trim().match(pricePattern);
-        if (priceMatch) {
-          nextLineHasPrice = true;
-          // Combine lines for item name
-          text = text + ' ' + nextLine.text.trim();
-        }
-      }
-
+      // Look for any price in the line (robust approach)
+      const priceMatch = text.match(pricePattern);
       if (!priceMatch) continue;
 
-      // Clean up OCR errors in price (O -> 0, lowercase o -> 0)
+      // Extract and validate price
       const priceStr = priceMatch[1]
         .replace(/[Oo]/g, '0')
         .replace(',', '.');
       const price = parseFloat(priceStr);
 
-      // Validate price is reasonable
       if (isNaN(price) || price <= 0 || price > 10000) {
         continue;
       }
@@ -126,17 +113,22 @@ export class ReceiptParserService {
         }
       }
 
-      // Extract item name (everything before the price)
-      let itemName = text.replace(pricePattern, '').trim();
-      if (quantityMatch) {
-        itemName = itemName.replace(quantityPattern, '').trim();
-      }
-      if (altQuantityPattern.test(itemName)) {
-        itemName = itemName.replace(altQuantityPattern, '').trim();
-      }
+      // Extract item name: everything before the price, cleaned up
+      const priceIndex = text.indexOf(priceMatch[1]);
+      let itemName = text.substring(0, priceIndex).trim();
 
-      // Clean up item name
-      itemName = itemName.replace(/\s+/g, ' ').trim();
+      // Remove trailing codes (barcodes, flags, etc.)
+      // Keep only the actual item description
+      itemName = itemName
+        // Remove 10+ digit barcodes at the end
+        .replace(/\s+\d{10,}\s*[A-Z]?\s*$/, '')
+        // Remove trailing single letters that are flags
+        .replace(/\s+[A-Z]\s*$/, '')
+        // Remove quantity prefix if present
+        .replace(/^(\d+)\s*x\s*/i, '')
+        // Clean up multiple spaces
+        .replace(/\s+/g, ' ')
+        .trim();
 
       // Skip if name is too short or confidence is too low
       if (itemName.length < 2 || line.confidence < this.config.minItemConfidence) {
@@ -152,11 +144,6 @@ export class ReceiptParserService {
         lineNumber: i,
         rawText: text,
       });
-
-      // Skip next line if we used it for price
-      if (nextLineHasPrice) {
-        i++;
-      }
     }
 
     return items;

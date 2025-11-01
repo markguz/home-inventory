@@ -1,0 +1,16 @@
+{
+  "default": [
+    {
+      "key": "thinking",
+      "value": "always use sequential thinking",
+      "namespace": "default",
+      "timestamp": 1760128292688
+    },
+    {
+      "key": "swarm/shared/breadcrumb-findings",
+      "value": "{\"status\":\"completed\",\"sections\":13,\"keyFindings\":[\"Use shadcn/ui breadcrumb component\",\"Implement DynamicBreadcrumb wrapper\",\"Client component with usePathname\",\"WCAG AA accessibility required\",\"Responsive design with mobile back button\",\"Dynamic routes need labelResolver\",\"Integration in root layout\"]}",
+      "namespace": "default",
+      "timestamp": 1760135821405
+    }
+  ]
+}
