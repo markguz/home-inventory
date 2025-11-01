@@ -57,9 +57,9 @@ export function ItemForm({ categories, defaultValues, onSubmit }: ItemFormProps)
       </div>
 
       <div>
-        <Label htmlFor="location">Location</Label>
-        <Input id="location" {...register('location')} placeholder="e.g., Garage, Shelf 3" />
-        {errors.location && <p className="text-sm text-red-500">{errors.location.message}</p>}
+        <Label htmlFor="locationId">Location ID</Label>
+        <Input id="locationId" {...register('locationId')} placeholder="Select a location ID" />
+        {errors.locationId && <p className="text-sm text-red-500">{errors.locationId.message}</p>}
       </div>
 
       <div>

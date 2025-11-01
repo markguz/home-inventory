@@ -46,16 +46,13 @@ export async function createItem(formData: FormData) {
   }
 
   try {
-    // Find or create location
-    const location = await findOrCreateLocation(parsed.data.location)
-
     // Create item with Prisma
     const result = await prisma.item.create({
       data: {
         name: parsed.data.name,
         description: parsed.data.description,
         categoryId: parsed.data.categoryId,
-        locationId: location.id,
+        locationId: parsed.data.locationId,
         quantity: parsed.data.quantity,
         serialNumber: parsed.data.serialNumber,
         notes: parsed.data.notes,
@@ -75,7 +72,7 @@ export async function updateItem(id: string, formData: FormData) {
     name: formData.get('name'),
     description: formData.get('description'),
     categoryId: formData.get('categoryId'),
-    location: formData.get('location'),
+    locationId: formData.get('locationId'),
     quantity: Number(formData.get('quantity')) || 1,
     serialNumber: formData.get('serialNumber') || undefined,
     notes: formData.get('notes') || undefined,
@@ -86,9 +83,6 @@ export async function updateItem(id: string, formData: FormData) {
   }
 
   try {
-    // Find or create location
-    const location = await findOrCreateLocation(parsed.data.location)
-
     // Update item with Prisma
     await prisma.item.update({
       where: { id },
@@ -96,7 +90,7 @@ export async function updateItem(id: string, formData: FormData) {
         name: parsed.data.name,
         description: parsed.data.description,
         categoryId: parsed.data.categoryId,
-        locationId: location.id,
+        locationId: parsed.data.locationId,
         quantity: parsed.data.quantity,
         serialNumber: parsed.data.serialNumber,
         notes: parsed.data.notes,
